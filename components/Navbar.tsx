@@ -8,6 +8,8 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/shopify";
 import type { Product } from "@/lib/types";
 import BrandLogo from "@/components/BrandLogo";
+import CustomerAvatar from "@/components/CustomerAvatar";
+import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 const SCROLL_RANGE = 128;
 const EXPANDED_BLOCK_HEIGHT = 132;
@@ -185,6 +187,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(true);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
+  const [customer, setCustomer] = useState<CustomerSummary | null>(null);
+
+  const loginHref = `/login?returnTo=${encodeURIComponent(pathname)}`;
 
   const enterTimerRef = useRef<NodeJS.Timeout | null>(null);
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -223,6 +228,26 @@ export default function Navbar() {
       if (raf) window.cancelAnimationFrame(raf);
     };
   }, [isHome]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSession() {
+      try {
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { customer: CustomerSummary | null };
+        if (!cancelled) setCustomer(data.customer);
+      } catch {
+        if (!cancelled) setCustomer(null);
+      }
+    }
+
+    loadSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     async function fetchFeatured() {
@@ -387,8 +412,16 @@ export default function Navbar() {
                       <WishlistIcon />
                       {item.label}
                     </button>
+                  ) : customer ? (
+                    <Link
+                      key={item.label}
+                      href="/account"
+                      className={`${nav.utility} inline-flex items-center gap-1.5`}
+                    >
+                      <CustomerAvatar customer={customer} showName />
+                    </Link>
                   ) : (
-                    <Link key={item.label} href={item.href} className={`${nav.utility} inline-flex items-center gap-1.5`}>
+                    <Link key={item.label} href={loginHref} className={`${nav.utility} inline-flex items-center gap-1.5`}>
                       <AccountIcon />
                       {item.label}
                     </Link>
@@ -640,7 +673,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {MOBILE_NAV_LINKS.map((item) => (
+          {MOBILE_NAV_LINKS.filter((item) => item.label !== "Sign in").map((item) => (
             <NavLink
               key={item.href + item.label}
               href={item.href}
@@ -650,6 +683,24 @@ export default function Navbar() {
               {item.label}
             </NavLink>
           ))}
+
+          {customer ? (
+            <Link
+              href="/account"
+              onClick={closeMobile}
+              className="flex items-center gap-3 border-b border-neptura-ice/10 py-5 text-nav uppercase tracking-nav text-neptura-silver transition-colors hover:text-neptura-crystal"
+            >
+              <CustomerAvatar customer={customer} showName />
+            </Link>
+          ) : (
+            <NavLink
+              href={loginHref}
+              className="border-b border-neptura-ice/10 py-5 text-nav uppercase tracking-nav text-neptura-silver transition-colors hover:text-neptura-crystal"
+              onClick={closeMobile}
+            >
+              Sign in
+            </NavLink>
+          )}
 
           {featuredProduct && (
             <Link
