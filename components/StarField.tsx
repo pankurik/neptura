@@ -13,13 +13,19 @@ interface Star {
   maxOpacity: number;
 }
 
-export default function StarField() {
+interface StarFieldProps {
+  /** Fewer stars for compact sections like account sub-page heroes */
+  density?: "full" | "subtle";
+}
+
+export default function StarField({ density = "full" }: StarFieldProps) {
   const [stars, setStars] = useState<Star[]>([]);
 
   useEffect(() => {
     // Generate star field properties only client-side to prevent hydration mismatch
     const isMobile = window.innerWidth < 768;
-    const starCount = isMobile ? 50 : 100;
+    const starCount =
+      density === "subtle" ? (isMobile ? 24 : 40) : isMobile ? 50 : 100;
     
     const generatedStars = Array.from({ length: starCount }, (_, i) => {
       const size = 0.3 + Math.random() * 1.4; // 0.3px to 1.7px
@@ -41,7 +47,7 @@ export default function StarField() {
     });
 
     setStars(generatedStars);
-  }, []);
+  }, [density]);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
