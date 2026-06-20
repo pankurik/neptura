@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccountOrderList from "@/components/account/AccountOrderList";
 import { fetchCustomerOrders } from "@/lib/customer-auth/orders";
@@ -21,14 +20,7 @@ export default async function AccountOrdersPage() {
   return (
     <div className="min-h-screen bg-neptura-light-bg px-6 pb-14 pt-28 md:px-10 lg:px-14">
       <div className="mx-auto max-w-3xl">
-        <Link
-          href="/account#stones"
-          className="text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
-        >
-          ← Back to my stones
-        </Link>
-
-        <header className="mt-8 border-b border-neptura-light pb-8">
+        <header className="border-b border-neptura-light pb-8">
           <p className="text-[0.68rem] font-normal uppercase tracking-[0.16em] text-neptura-aurora">
             Your collection
           </p>
