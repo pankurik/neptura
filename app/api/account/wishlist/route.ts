@@ -4,7 +4,10 @@ import {
   fetchCustomerWishlist,
   removeFromCustomerWishlist,
 } from "@/lib/customer-auth/wishlist";
-import { requireCustomerSession } from "@/lib/customer-auth/require-session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 
 type WishlistBody = {
   handle?: string;
@@ -15,10 +18,7 @@ export async function GET() {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   const handles = await fetchCustomerWishlist(session.customer.id);
@@ -29,10 +29,7 @@ export async function POST(request: NextRequest) {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: WishlistBody;
