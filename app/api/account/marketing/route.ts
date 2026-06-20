@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchCustomerProfile } from "@/lib/customer-auth/customer";
 import { setEmailMarketingSubscription } from "@/lib/customer-auth/marketing";
 import { getCustomerDisplayPhone } from "@/lib/customer-auth/phone";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 import { setSmsMarketingSubscription } from "@/lib/customer-auth/sms-marketing";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
 
 type MarketingBody = {
   channel?: "email" | "sms";
@@ -11,10 +13,10 @@ type MarketingBody = {
 };
 
 export async function POST(request: NextRequest) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: MarketingBody;
@@ -32,13 +34,7 @@ export async function POST(request: NextRequest) {
   const channel = body.channel === "sms" ? "sms" : "email";
 
   if (channel === "sms") {
-    const customer = await fetchCustomerProfile(accessToken);
-
-    if (!customer) {
-      return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-    }
-
-    if (!getCustomerDisplayPhone(customer)) {
+    if (!getCustomerDisplayPhone(session.customer)) {
       return NextResponse.json(
         { error: "Add a phone number before subscribing to SMS updates." },
         { status: 400 }
@@ -46,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { marketingState, errors } = await setSmsMarketingSubscription(
-      customer.id,
+      session.customer.id,
       body.subscribed
     );
 
@@ -61,7 +57,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { marketingState, errors } = await setEmailMarketingSubscription(
-    accessToken,
+    session.accessToken,
     body.subscribed
   );
 
