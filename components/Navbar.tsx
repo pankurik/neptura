@@ -190,11 +190,13 @@ export default function Navbar() {
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const overlayOpen = Boolean(activeMenu) || mobileOpen;
-  const effectivePhase = !isHome ? 1 : overlayOpen || headerHovered ? 1 : navPhase;
-  const expandedOpacity = 1 - rangeMap(effectivePhase, 0, 0.55, 0, 1);
-  const compactLogoOpacity = rangeMap(effectivePhase, 0.35, 0.85, 0, 1);
-  const isLightNav = effectivePhase > 0.45 || overlayOpen || !isHome;
-  const useAdaptiveNav = isHome && effectivePhase < 1 && !overlayOpen;
+  const layoutPhase = !isHome ? 1 : navPhase;
+  const surfacePhase = !isHome ? 1 : overlayOpen || headerHovered ? 1 : navPhase;
+  const hoverSurfaceVisible = isHome && headerHovered && navPhase < 0.92;
+  const expandedOpacity = 1 - rangeMap(layoutPhase, 0, 0.55, 0, 1);
+  const compactLogoOpacity = rangeMap(layoutPhase, 0.35, 0.85, 0, 1);
+  const isLightNav = surfacePhase > 0.45 || overlayOpen || !isHome;
+  const useAdaptiveNav = isHome && surfacePhase < 1 && !overlayOpen;
 
   useEffect(() => {
     if (!isHome) {
@@ -279,7 +281,7 @@ export default function Navbar() {
 
   const nav = navClasses(isLightNav, useAdaptiveNav);
   const headerStyle = {
-    "--nav-phase": effectivePhase,
+    "--nav-phase": surfacePhase,
   } as React.CSSProperties;
 
   return (
@@ -307,8 +309,16 @@ export default function Navbar() {
           className="pointer-events-none absolute inset-0 -z-10 border-b"
           style={{
             backgroundColor: "var(--neptura-light-bg)",
-            opacity: effectivePhase,
-            borderBottomColor: `rgba(74, 144, 164, ${0.12 * effectivePhase})`,
+            opacity: !isHome ? 1 : navPhase,
+            borderBottomColor: `rgba(74, 144, 164, ${0.12 * (!isHome ? 1 : navPhase)})`,
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 border-b border-neptura-light transition-opacity duration-[400ms] ease-out-expo"
+          style={{
+            backgroundColor: "var(--neptura-light-bg)",
+            opacity: hoverSurfaceVisible ? 1 : 0,
           }}
         />
         {/* ── Mobile ── */}
@@ -363,7 +373,7 @@ export default function Navbar() {
             style={{
               height: `${expandedOpacity * EXPANDED_BLOCK_HEIGHT}px`,
               opacity: expandedOpacity,
-              pointerEvents: effectivePhase > 0.82 ? "none" : "auto",
+              pointerEvents: layoutPhase > 0.82 ? "none" : "auto",
             }}
           >
             <div
@@ -397,8 +407,8 @@ export default function Navbar() {
           <div
             className="relative flex items-center"
             style={{
-              paddingTop: `${4 + effectivePhase * 10}px`,
-              paddingBottom: `${4 + effectivePhase * 10}px`,
+              paddingTop: `${4 + layoutPhase * 10}px`,
+              paddingBottom: `${4 + layoutPhase * 10}px`,
             }}
           >
             <Link
@@ -446,7 +456,7 @@ export default function Navbar() {
               className="ml-auto flex shrink-0 items-center gap-1 pl-8"
               style={{
                 borderLeft:
-                  effectivePhase < 0.2 && expandedOpacity > 0.05 ? nav.iconDivider : "none",
+                  layoutPhase < 0.2 && expandedOpacity > 0.05 ? nav.iconDivider : "none",
               }}
             >
               <button
