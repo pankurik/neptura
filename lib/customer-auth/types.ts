@@ -1,3 +1,5 @@
+import type { BespokeCommission } from "./bespoke-commissions";
+
 export type CustomerSummary = {
   id: string;
   firstName: string | null;
@@ -5,7 +7,15 @@ export type CustomerSummary = {
   displayName: string | null;
   email: string | null;
   imageUrl: string | null;
+  avatarUrl: string | null;
   phone: string | null;
+  memberSince: string | null;
+  birthday: string | null;
+  anniversary: string | null;
+  ringSize: string | null;
+  jewelryPreferences: string[];
+  wishlistHandles: string[];
+  bespokeCommissions: BespokeCommission[];
   emailMarketingState: string | null;
   smsMarketingState: string | null;
   addresses: CustomerAddressSummary[];
@@ -68,3 +78,5 @@ export type TokenResponse = {
   id_token?: string;
   token_type?: string;
 };
+
+export type { BespokeCommission };
