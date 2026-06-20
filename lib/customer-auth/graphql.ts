@@ -37,7 +37,13 @@ export async function customerAccountFetch<T>(
       throw new CustomerAuthError(message);
     }
 
-    return { data: null, errors: json.errors.map((error) => error.message) };
+    const errors = json.errors.map((error) => error.message);
+
+    if (json.data) {
+      return { data: json.data, errors };
+    }
+
+    return { data: null, errors };
   }
 
   return { data: json.data ?? null, errors: [] };
