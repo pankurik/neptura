@@ -124,7 +124,7 @@ async function getAdminAccessToken(): Promise<string> {
   return json.access_token;
 }
 
-async function adminFetch<T>(
+export async function shopifyAdminFetch<T>(
   query: string,
   variables?: Record<string, unknown>
 ): Promise<T> {
@@ -160,7 +160,7 @@ const STOREFRONT_TOKEN_TITLE = "Neptura Frontend";
 async function listStorefrontAccessTokens(): Promise<
   { accessToken: string; title: string }[]
 > {
-  const data = await adminFetch<{
+  const data = await shopifyAdminFetch<{
     shop: {
       storefrontAccessTokens: {
         edges: { node: { accessToken: string; title: string } }[];
@@ -183,7 +183,7 @@ async function listStorefrontAccessTokens(): Promise<
 }
 
 async function createStorefrontAccessToken(): Promise<string> {
-  const data = await adminFetch<{
+  const data = await shopifyAdminFetch<{
     storefrontAccessTokenCreate: {
       storefrontAccessToken: { accessToken: string } | null;
       userErrors: { message: string }[];
