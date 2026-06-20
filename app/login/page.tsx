@@ -9,13 +9,14 @@ export const metadata = {
 };
 
 type LoginPageProps = {
-  searchParams: { returnTo?: string; error?: string };
+  searchParams: { returnTo?: string; error?: string; email?: string };
 };
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
   const returnTo = sanitizeReturnTo(searchParams.returnTo);
   const flash = cookies().get(AUTH_COOKIE.authFlash)?.value;
   const pendingEmail = cookies().get(AUTH_COOKIE.pendingLoginEmail)?.value;
+  const emailHint = searchParams.email?.trim().toLowerCase() ?? "";
 
   const error =
     flash === "wrong_account"
@@ -29,7 +30,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
       returnTo={returnTo}
       error={error}
       signedOut={flash === "signed_out"}
-      defaultEmail={pendingEmail ?? ""}
+      defaultEmail={emailHint || pendingEmail || ""}
     />
   );
 }
