@@ -1,5 +1,7 @@
 import { fetchCustomerAccountApiConfiguration } from "./discovery";
 
+import { CustomerAuthError, isCustomerAuthError } from "./auth-errors";
+
 type GraphqlResult<T> = {
   data?: T;
   errors?: { message: string }[];
@@ -24,7 +26,17 @@ export async function customerAccountFetch<T>(
 
   const json = (await response.json()) as GraphqlResult<T>;
 
+  if (response.status === 401) {
+    throw new CustomerAuthError();
+  }
+
   if (json.errors?.length) {
+    const message = json.errors[0]?.message ?? "Customer Account API error";
+
+    if (json.errors.some((error) => isCustomerAuthError(error.message))) {
+      throw new CustomerAuthError(message);
+    }
+
     return { data: null, errors: json.errors.map((error) => error.message) };
   }
 
