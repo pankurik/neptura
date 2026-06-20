@@ -1,3 +1,47 @@
+import type { Cart, Collection, Image, Product, ProductVariant } from "./types";
+
+const CART_FIELDS = `
+  id
+  checkoutUrl
+  totalQuantity
+  cost {
+    subtotalAmount {
+      amount
+      currencyCode
+    }
+    totalAmount {
+      amount
+      currencyCode
+    }
+  }
+  lines(first: 100) {
+    edges {
+      node {
+        id
+        quantity
+        merchandise {
+          ... on ProductVariant {
+            id
+            title
+            product {
+              title
+              handle
+            }
+            price {
+              amount
+              currencyCode
+            }
+            image {
+              url
+              altText
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const getProductsQuery = `
   query getProducts($first: Int!) {
     products(first: $first) {
@@ -13,6 +57,10 @@ export const getProductsQuery = `
           }
           priceRange {
             minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
               amount
               currencyCode
             }
@@ -67,43 +115,52 @@ export const getProductQuery = `
           }
         }
       }
+      priceRange {
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+        maxVariantPrice {
+          amount
+          currencyCode
+        }
+      }
     }
   }
 `;
 
-export const createCartQuery = `
+export const getCollectionsQuery = `
+  query getCollections($first: Int!) {
+    collections(first: $first) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          image {
+            url
+            altText
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const getCartQuery = `
+  query getCart($cartId: ID!) {
+    cart(id: $cartId) {
+      ${CART_FIELDS}
+    }
+  }
+`;
+
+export const createCartMutation = `
   mutation createCart($lines: [CartLineInput!]) {
     cartCreate(input: { lines: $lines }) {
       cart {
-        id
-        checkoutUrl
-        totalQuantity
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                  product {
-                    title
-                    handle
-                  }
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  image {
-                    url
-                    altText
-                  }
-                }
-              }
-            }
-          }
-        }
+        ${CART_FIELDS}
       }
       userErrors {
         field
@@ -113,39 +170,11 @@ export const createCartQuery = `
   }
 `;
 
-export const cartLinesAddQuery = `
+export const cartLinesAddMutation = `
   mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {
       cart {
-        id
-        checkoutUrl
-        totalQuantity
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                  product {
-                    title
-                    handle
-                  }
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  image {
-                    url
-                    altText
-                  }
-                }
-              }
-            }
-          }
-        }
+        ${CART_FIELDS}
       }
       userErrors {
         field
@@ -155,103 +184,173 @@ export const cartLinesAddQuery = `
   }
 `;
 
-export interface ShopifyImage {
-  url: string;
-  altText: string | null;
-}
+export const cartLinesUpdateMutation = `
+  mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ${CART_FIELDS}
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
 
-export interface Money {
-  amount: string;
-  currencyCode: string;
-}
+export const cartLinesRemoveMutation = `
+  mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ${CART_FIELDS}
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
 
-export interface ProductSummary {
-  id: string;
-  handle: string;
-  title: string;
-  description: string;
-  featuredImage: ShopifyImage | null;
-  priceRange: {
-    minVariantPrice: Money;
-  };
-}
-
-export interface ProductOption {
-  name: string;
-  values: string[];
-}
-
-export interface ProductVariant {
-  id: string;
-  title: string;
-  availableForSale: boolean;
-  selectedOptions: { name: string; value: string }[];
-  price: Money;
-  image: ShopifyImage | null;
-}
-
-export interface ProductDetail {
-  id: string;
-  handle: string;
-  title: string;
-  description: string;
-  featuredImage: ShopifyImage | null;
-  images: { edges: { node: ShopifyImage }[] };
-  options: ProductOption[];
-  variants: { edges: { node: ProductVariant }[] };
-}
-
-export interface CartLineMerchandise {
-  id: string;
-  title: string;
-  product: { title: string; handle: string };
-  price: Money;
-  image: ShopifyImage | null;
-}
-
-export interface CartLine {
-  id: string;
-  quantity: number;
-  merchandise: CartLineMerchandise;
-}
-
-export interface Cart {
+interface RawCart {
   id: string;
   checkoutUrl: string;
   totalQuantity: number;
-  lines: { edges: { node: CartLine }[] };
+  cost: {
+    subtotalAmount: { amount: string; currencyCode: string };
+    totalAmount: { amount: string; currencyCode: string };
+  } | null;
+  lines: {
+    edges: {
+      node: {
+        id: string;
+        quantity: number;
+        merchandise: {
+          id: string;
+          title: string;
+          product: { title: string; handle: string };
+          price: { amount: string; currencyCode: string };
+          image: Image | null;
+        };
+      };
+    }[];
+  };
 }
 
-export async function getProducts(first = 24) {
+function normalizeCart(raw: RawCart): Cart {
+  return {
+    id: raw.id,
+    checkoutUrl: raw.checkoutUrl,
+    totalQuantity: raw.totalQuantity,
+    cost: raw.cost,
+    lines: raw.lines.edges.map((edge) => edge.node),
+  };
+}
+
+function normalizeProduct(raw: {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  featuredImage: Image | null;
+  images?: { edges: { node: Image }[] };
+  options?: { name: string; values: string[] }[];
+  variants?: { edges: { node: ProductVariant }[] };
+  priceRange: {
+    minVariantPrice: { amount: string; currencyCode: string };
+    maxVariantPrice: { amount: string; currencyCode: string };
+  };
+}): Product {
+  return {
+    id: raw.id,
+    handle: raw.handle,
+    title: raw.title,
+    description: raw.description,
+    featuredImage: raw.featuredImage,
+    images: raw.images?.edges.map((edge) => edge.node) ?? [],
+    options: raw.options ?? [],
+    variants: raw.variants?.edges.map((edge) => edge.node) ?? [],
+    priceRange: raw.priceRange,
+  };
+}
+
+function normalizeProductSummary(raw: {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  featuredImage: Image | null;
+  priceRange: {
+    minVariantPrice: { amount: string; currencyCode: string };
+    maxVariantPrice: { amount: string; currencyCode: string };
+  };
+}): Product {
+  return {
+    ...raw,
+    images: [],
+    options: [],
+    variants: [],
+    priceRange: raw.priceRange,
+  };
+}
+
+const catalogCache = { cache: "force-cache" as const, revalidate: 3600 };
+
+export async function getProducts(first = 24): Promise<Product[]> {
   const { shopifyFetch } = await import("./shopify");
   const data = await shopifyFetch<{
-    products: { edges: { node: ProductSummary }[] };
+    products: { edges: { node: Parameters<typeof normalizeProductSummary>[0] }[] };
   }>({
     query: getProductsQuery,
     variables: { first },
     tags: ["products"],
+    ...catalogCache,
   });
-  return data.products.edges.map((edge) => edge.node);
+  return data.products.edges.map((edge) => normalizeProductSummary(edge.node));
 }
 
-export async function getProduct(handle: string) {
+export async function getProduct(handle: string): Promise<Product | null> {
   const { shopifyFetch } = await import("./shopify");
-  const data = await shopifyFetch<{ product: ProductDetail | null }>({
+  const data = await shopifyFetch<{ product: Parameters<typeof normalizeProduct>[0] | null }>({
     query: getProductQuery,
     variables: { handle },
     tags: [`product-${handle}`],
+    ...catalogCache,
   });
-  return data.product;
+  return data.product ? normalizeProduct(data.product) : null;
+}
+
+export async function getCollections(first = 24): Promise<Collection[]> {
+  const { shopifyFetch } = await import("./shopify");
+  const data = await shopifyFetch<{
+    collections: { edges: { node: Collection }[] };
+  }>({
+    query: getCollectionsQuery,
+    variables: { first },
+    tags: ["collections"],
+    ...catalogCache,
+  });
+  return data.collections.edges.map((edge) => edge.node);
+}
+
+export async function getCart(cartId: string): Promise<Cart | null> {
+  const { shopifyFetch } = await import("./shopify");
+  const data = await shopifyFetch<{ cart: RawCart | null }>({
+    query: getCartQuery,
+    variables: { cartId },
+    cache: "no-store",
+  });
+  return data.cart ? normalizeCart(data.cart) : null;
 }
 
 export async function createCart(
   lines: { merchandiseId: string; quantity: number }[] = []
-) {
+): Promise<Cart | null> {
   const { shopifyFetch } = await import("./shopify");
   const data = await shopifyFetch<{
-    cartCreate: { cart: Cart | null; userErrors: { message: string }[] };
+    cartCreate: { cart: RawCart | null; userErrors: { message: string }[] };
   }>({
-    query: createCartQuery,
+    query: createCartMutation,
     variables: { lines },
     cache: "no-store",
   });
@@ -260,18 +359,18 @@ export async function createCart(
     throw new Error(data.cartCreate.userErrors[0].message);
   }
 
-  return data.cartCreate.cart;
+  return data.cartCreate.cart ? normalizeCart(data.cartCreate.cart) : null;
 }
 
 export async function cartLinesAdd(
   cartId: string,
   lines: { merchandiseId: string; quantity: number }[]
-) {
+): Promise<Cart | null> {
   const { shopifyFetch } = await import("./shopify");
   const data = await shopifyFetch<{
-    cartLinesAdd: { cart: Cart | null; userErrors: { message: string }[] };
+    cartLinesAdd: { cart: RawCart | null; userErrors: { message: string }[] };
   }>({
-    query: cartLinesAddQuery,
+    query: cartLinesAddMutation,
     variables: { cartId, lines },
     cache: "no-store",
   });
@@ -280,5 +379,45 @@ export async function cartLinesAdd(
     throw new Error(data.cartLinesAdd.userErrors[0].message);
   }
 
-  return data.cartLinesAdd.cart;
+  return data.cartLinesAdd.cart ? normalizeCart(data.cartLinesAdd.cart) : null;
+}
+
+export async function cartLinesUpdate(
+  cartId: string,
+  lines: { id: string; quantity: number }[]
+): Promise<Cart | null> {
+  const { shopifyFetch } = await import("./shopify");
+  const data = await shopifyFetch<{
+    cartLinesUpdate: { cart: RawCart | null; userErrors: { message: string }[] };
+  }>({
+    query: cartLinesUpdateMutation,
+    variables: { cartId, lines },
+    cache: "no-store",
+  });
+
+  if (data.cartLinesUpdate.userErrors.length > 0) {
+    throw new Error(data.cartLinesUpdate.userErrors[0].message);
+  }
+
+  return data.cartLinesUpdate.cart ? normalizeCart(data.cartLinesUpdate.cart) : null;
+}
+
+export async function cartLinesRemove(
+  cartId: string,
+  lineIds: string[]
+): Promise<Cart | null> {
+  const { shopifyFetch } = await import("./shopify");
+  const data = await shopifyFetch<{
+    cartLinesRemove: { cart: RawCart | null; userErrors: { message: string }[] };
+  }>({
+    query: cartLinesRemoveMutation,
+    variables: { cartId, lineIds },
+    cache: "no-store",
+  });
+
+  if (data.cartLinesRemove.userErrors.length > 0) {
+    throw new Error(data.cartLinesRemove.userErrors[0].message);
+  }
+
+  return data.cartLinesRemove.cart ? normalizeCart(data.cartLinesRemove.cart) : null;
 }
