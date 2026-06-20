@@ -5,6 +5,7 @@ import { fetchCustomerOrders } from "@/lib/customer-auth/orders";
 import { readCustomerAccessToken } from "@/lib/customer-auth/session";
 import { getCustomerSession } from "@/lib/customer-auth/require-session";
 import { getProductsByHandles } from "@/lib/queries";
+import { WISHLIST_PREVIEW_LIMIT } from "@/components/account/AccountWishlistGrid";
 
 export const metadata = {
   title: "Your account | Neptura",
@@ -23,7 +24,9 @@ export default async function AccountPage() {
 
   const profileComplete = isProfileComplete(customer);
   const wishlistProducts = customer.wishlistHandles.length
-    ? await getProductsByHandles(customer.wishlistHandles)
+    ? await getProductsByHandles(
+        customer.wishlistHandles.slice(0, WISHLIST_PREVIEW_LIMIT)
+      )
     : [];
 
   return (
