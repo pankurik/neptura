@@ -32,7 +32,7 @@ const MAIN_NAV_LINKS = [
 
 const UTILITY_RIGHT = [
   { label: "Sign in", href: "/login", icon: "account" as const },
-  { label: "Wishlist", href: "#", icon: "wishlist" as const },
+  { label: "Wishlist", href: "/account#wishlist", icon: "wishlist" as const },
 ];
 
 const COLLECTION_LINKS = [
@@ -408,17 +408,25 @@ export default function Navbar() {
               <div className="flex items-center gap-1">
                 {UTILITY_RIGHT.map((item) =>
                   item.icon === "wishlist" ? (
-                    <button key={item.label} type="button" className={`${nav.utility} inline-flex items-center gap-1.5`} aria-label="Wishlist">
+                    <Link
+                      key={item.label}
+                      href={customer ? item.href : loginHref}
+                      className={`${nav.utility} inline-flex items-center gap-1.5`}
+                      aria-label="Wishlist"
+                    >
                       <WishlistIcon />
                       {item.label}
-                    </button>
+                      {customer && customer.wishlistHandles.length > 0 && (
+                        <span>({customer.wishlistHandles.length})</span>
+                      )}
+                    </Link>
                   ) : customer ? (
                     <Link
                       key={item.label}
                       href="/account"
                       className={`${nav.utility} inline-flex items-center gap-1.5`}
                     >
-                      <CustomerAvatar customer={customer} showName />
+                      <CustomerAvatar customer={customer} showName shape="circle" />
                     </Link>
                   ) : (
                     <Link key={item.label} href={loginHref} className={`${nav.utility} inline-flex items-center gap-1.5`}>
@@ -690,7 +698,7 @@ export default function Navbar() {
               onClick={closeMobile}
               className="flex items-center gap-3 border-b border-neptura-ice/10 py-5 text-nav uppercase tracking-nav text-neptura-silver transition-colors hover:text-neptura-crystal"
             >
-              <CustomerAvatar customer={customer} showName />
+              <CustomerAvatar customer={customer} showName shape="circle" />
             </Link>
           ) : (
             <NavLink
