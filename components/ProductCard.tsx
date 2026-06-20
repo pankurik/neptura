@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/shopify";
-import type { ProductSummary } from "@/lib/queries";
+import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
-  product: ProductSummary;
+  product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -13,9 +13,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-md"
+      className="group flex flex-col overflow-hidden bg-white transition hover:shadow-md"
     >
-      <div className="relative aspect-square overflow-hidden bg-neptura-sand">
+      <div className="relative aspect-square overflow-hidden bg-neptura-pearl">
         {product.featuredImage ? (
           <Image
             src={product.featuredImage.url}
@@ -25,17 +25,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-neptura-ocean/30">
+          <div className="flex h-full items-center justify-center text-neptura-navy/30">
             No image
           </div>
         )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-neptura-navy">
+        <h2 className="font-serif text-base font-light text-neptura-navy">
           {product.title}
         </h2>
-        <p className="mt-auto pt-2 text-sm text-neptura-ocean">
+        <p className="mt-auto pt-2 text-sm text-neptura-navy/60">
           {formatPrice(amount, currencyCode)}
         </p>
       </div>
