@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import CustomerAvatar from "@/components/CustomerAvatar";
-import { getCustomerSession } from "@/lib/customer-auth/session";
+import { getCustomerSession } from "@/lib/customer-auth/require-session";
 import { sanitizeReturnTo } from "@/lib/customer-auth/return-to";
 
 export const metadata = {
