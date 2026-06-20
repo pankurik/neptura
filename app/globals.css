@@ -167,11 +167,13 @@
 
   .brand-wordmark--compact {
     font-size: 1.125rem;
+    font-weight: 550;
     letter-spacing: 0.22em;
   }
 
   .brand-wordmark--mobile {
     font-size: 1.25rem;
+    font-weight: 550;
     letter-spacing: 0.22em;
   }
 
