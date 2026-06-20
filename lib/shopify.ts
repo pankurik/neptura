@@ -14,6 +14,21 @@ let cachedAdminToken: CachedAdminToken | null = null;
 let cachedStorefrontToken: string | null = null;
 let cachedMyshopifyDomain: string | null = null;
 
+export function invalidateAdminAccessToken(): void {
+  cachedAdminToken = null;
+}
+
+function isAdminAuthFailure(message: string, status: number): boolean {
+  if (status === 401) return true;
+
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("invalid or revoked") ||
+    lower.includes("invalid api key") ||
+    lower.includes("unrecognized login")
+  );
+}
+
 function requireEnv() {
   if (!domain) {
     throw new Error("Missing SHOPIFY_STORE_DOMAIN environment variable.");
@@ -126,7 +141,8 @@ async function getAdminAccessToken(): Promise<string> {
 
 export async function shopifyAdminFetch<T>(
   query: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
+  retryOnAuthFailure = true
 ): Promise<T> {
   const myshopifyDomain = await getMyshopifyDomain();
   const adminToken = await getAdminAccessToken();
@@ -149,7 +165,19 @@ export async function shopifyAdminFetch<T>(
   );
 
   if (json.errors?.length) {
-    throw new Error(json.errors[0]?.message ?? "Shopify Admin API error");
+    const message = json.errors[0]?.message ?? "Shopify Admin API error";
+
+    if (retryOnAuthFailure && isAdminAuthFailure(message, response.status)) {
+      invalidateAdminAccessToken();
+      return shopifyAdminFetch<T>(query, variables, false);
+    }
+
+    throw new Error(message);
+  }
+
+  if (retryOnAuthFailure && isAdminAuthFailure("", response.status)) {
+    invalidateAdminAccessToken();
+    return shopifyAdminFetch<T>(query, variables, false);
   }
 
   return json.data as T;
