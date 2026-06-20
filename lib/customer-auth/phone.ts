@@ -77,7 +77,7 @@ export function parseE164Phone(
     return { countryCode: defaultCountryCode, nationalNumber: "" };
   }
 
-  const dialCodes = [...new Set(PHONE_COUNTRIES.map((country) => country.dialCode))].sort(
+  const dialCodes = Array.from(new Set(PHONE_COUNTRIES.map((country) => country.dialCode))).sort(
     (a, b) => b.length - a.length
   );
 
