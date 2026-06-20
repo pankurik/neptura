@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import AccountSetupForm from "@/components/AccountSetupForm";
 import { isProfileComplete } from "@/lib/customer-auth/customer";
 import { sanitizeReturnTo } from "@/lib/customer-auth/return-to";
-import { getCustomerSession } from "@/lib/customer-auth/session";
+import { getCustomerSession } from "@/lib/customer-auth/require-session";
 
 export const metadata = {
   title: "Complete your profile | Neptura",
