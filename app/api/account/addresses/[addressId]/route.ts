@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteCustomerAddress, updateCustomerAddress } from "@/lib/customer-auth/addresses";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 import type { CustomerAddressInput } from "@/lib/customer-auth/types";
 
 type RouteContext = {
@@ -8,10 +11,10 @@ type RouteContext = {
 };
 
 export async function PUT(request: NextRequest, context: RouteContext) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   const { addressId } = await context.params;
@@ -29,7 +32,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Please fill in all required address fields." }, { status: 400 });
   }
 
-  const { address, errors } = await updateCustomerAddress(accessToken, decodedId, body);
+  const { address, errors } = await updateCustomerAddress(session.accessToken, decodedId, body);
 
   if (errors.length || !address) {
     return NextResponse.json(
@@ -42,16 +45,16 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   const { addressId } = await context.params;
   const decodedId = decodeURIComponent(addressId);
 
-  const { deletedAddressId, errors } = await deleteCustomerAddress(accessToken, decodedId);
+  const { deletedAddressId, errors } = await deleteCustomerAddress(session.accessToken, decodedId);
 
   if (errors.length || !deletedAddressId) {
     return NextResponse.json(
