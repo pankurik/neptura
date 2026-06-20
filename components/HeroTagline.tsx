@@ -2,16 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const SETUP_COPY = (
-  <>
-    On Neptune & Uranus, it rains diamonds.
-    <br />
-    We asked why.
-    <br />
-    Then we asked how.
-  </>
-);
-
 const LAST_LINE_PREFIX = "Now we ask — ";
 const TYPED_PHRASE = "would you like one?";
 
@@ -101,27 +91,32 @@ export default function HeroTagline({ onComplete }: HeroTaglineProps) {
 
   return (
     <div
-      className={`hero-tagline mx-auto mt-8 max-w-xl transition-opacity duration-700 ${
+      className={`hero-tagline mx-auto mt-7 max-w-md transition-opacity duration-700 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       aria-live="off"
     >
-      <p className="hero-tagline-setup">{SETUP_COPY}</p>
-
-      <p className="hero-tagline-punchline">
-        {LAST_LINE_PREFIX}
-        <span
-          className={`hero-tagline-emphasis ${
-            isFullPhrase ? "hero-tagline-emphasis--lit" : ""
-          }`}
-        >
-          {TYPED_PHRASE.slice(0, typedChars)}
-        </span>
-        {looping ? (
-          <span className="hero-tagline-cursor" aria-hidden>
-            |
+      <p className="hero-tagline-copy font-display">
+        On Neptune & Uranus, it rains diamonds.
+        <br />
+        We asked why.
+        <br />
+        Then we asked how.
+        <span className="hero-tagline-ask">
+          {LAST_LINE_PREFIX}
+          <span
+            className={`hero-tagline-emphasis ${
+              isFullPhrase ? "hero-tagline-emphasis--lit" : ""
+            }`}
+          >
+            {TYPED_PHRASE.slice(0, typedChars)}
           </span>
-        ) : null}
+          {looping ? (
+            <span className="hero-tagline-cursor" aria-hidden>
+              |
+            </span>
+          ) : null}
+        </span>
       </p>
     </div>
   );

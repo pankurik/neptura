@@ -63,7 +63,7 @@ export default function Hero() {
         <HeroTagline onComplete={() => setShowCtas(true)} />
 
         <div
-          className={`mt-8 flex flex-col items-center gap-4 sm:flex-row motion-reduce:opacity-100 ${
+          className={`mt-14 flex flex-col items-center gap-4 sm:flex-row motion-reduce:opacity-100 ${
             showCtas
               ? "animate-neptura-fade-up opacity-100"
               : "pointer-events-none opacity-0"
