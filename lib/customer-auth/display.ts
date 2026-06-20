@@ -21,9 +21,18 @@ export function getCustomerInitials(customer: CustomerSummary): string {
   return emailInitial ? emailInitial.toUpperCase() : "?";
 }
 
+export function getCustomerFullName(customer: CustomerSummary): string | null {
+  const full = [customer.firstName, customer.lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ");
+
+  return full || null;
+}
+
 export function getCustomerDisplayLabel(customer: CustomerSummary): string {
-  if (customer.firstName) return customer.firstName;
-  if (customer.displayName) return customer.displayName;
+  const fullName = getCustomerFullName(customer);
+  if (fullName) return fullName;
   if (customer.email) return customer.email.split("@")[0] ?? "Account";
   return "Account";
 }
