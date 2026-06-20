@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearCustomerAvatar, uploadCustomerAvatar } from "@/lib/customer-auth/avatar";
-import { fetchCustomerProfile } from "@/lib/customer-auth/customer";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 
 export async function POST(request: NextRequest) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  }
-
-  const customer = await fetchCustomerProfile(accessToken);
-
-  if (!customer) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   let formData: FormData;
@@ -30,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Choose an image to upload." }, { status: 400 });
   }
 
-  const { avatarUrl, errors } = await uploadCustomerAvatar(customer.id, file);
+  const { avatarUrl, errors } = await uploadCustomerAvatar(session.customer.id, file);
 
   if (errors.length || !avatarUrl) {
     return NextResponse.json(
@@ -43,19 +39,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE() {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
-  const customer = await fetchCustomerProfile(accessToken);
-
-  if (!customer) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  }
-
-  const { errors } = await clearCustomerAvatar(customer.id);
+  const { errors } = await clearCustomerAvatar(session.customer.id);
 
   if (errors.length) {
     return NextResponse.json({ error: errors[0] ?? "Avatar could not be removed." }, { status: 422 });
