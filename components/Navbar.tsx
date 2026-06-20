@@ -12,7 +12,7 @@ import CustomerAvatar from "@/components/CustomerAvatar";
 import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 const SCROLL_RANGE = 128;
-const EXPANDED_BLOCK_HEIGHT = 132;
+const EXPANDED_BLOCK_HEIGHT = 120;
 const WISHLIST_PATH = "/account/wishlist";
 
 function smoothstep(t: number) {
@@ -548,7 +548,7 @@ export default function Navbar() {
           >
             {onHero && (
               <div
-                className="relative flex items-center justify-end py-2"
+                className="relative flex items-center justify-end py-1.5"
                 style={{ borderBottom: nav.tierDivider }}
               >
                 <p
@@ -572,7 +572,7 @@ export default function Navbar() {
               </div>
             )}
 
-            <div className="flex justify-center pb-2 pt-3 md:pb-3 md:pt-4">
+            <div className="flex justify-center pb-2 pt-2 md:pb-2.5 md:pt-2.5">
               <Link href="/" onClick={closeAll} className="hover:opacity-80">
                 <BrandLogo variant="expanded" adaptive={useAdaptiveNav} light={isLightNav && !useAdaptiveNav} />
               </Link>
