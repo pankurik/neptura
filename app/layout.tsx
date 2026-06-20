@@ -8,11 +8,13 @@ import "./globals.css";
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
   variable: "--font-cormorant",
 });
 
 const inter = Inter({
   subsets: ["latin"],
+  weight: ["300", "400", "500"],
   variable: "--font-inter",
 });
 
@@ -29,12 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${cormorant.variable} ${inter.variable} bg-neptura-pearl font-sans text-neptura-navy antialiased`}
+        className={`${cormorant.variable} ${inter.variable} bg-neptura-light-bg font-sans text-neptura-light-text antialiased`}
       >
         <CartProvider>
           <Navbar />
           <CartDrawer />
-          <main className="pt-16">{children}</main>
+          <main>{children}</main>
         </CartProvider>
       </body>
     </html>

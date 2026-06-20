@@ -21,38 +21,42 @@ export default function CartDrawer() {
 
   return (
     <>
+      {/* Backdrop overlay */}
       <div
-        className={`fixed inset-0 z-[60] bg-neptura-navy/40 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[60] bg-neptura-light-text/30 backdrop-blur-sm transition-opacity duration-300 ${
           cartOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={closeCart}
         aria-hidden={!cartOpen}
       />
 
+      {/* Drawer */}
       <aside
-        className={`fixed inset-y-0 right-0 z-[70] flex w-full max-w-md flex-col bg-neptura-pearl shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 right-0 z-[70] flex w-full max-w-md flex-col bg-neptura-light-bg border-l border-neptura-light transition-transform duration-300 ease-out ${
           cartOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-hidden={!cartOpen}
         aria-label="Shopping bag"
       >
-        <div className="flex items-center justify-between border-b border-neptura-navy/10 px-6 py-5">
-          <h2 className="font-serif text-xl font-light text-neptura-navy">
-            Your Bag
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-neptura-light px-6 py-5">
+          <h2 className="font-display text-xl font-light text-neptura-light-text">
+            Your stones
           </h2>
           <button
             type="button"
             onClick={closeCart}
-            className="text-xs uppercase tracking-[0.2em] text-neptura-navy/60 transition hover:text-neptura-rose"
+            className="text-xs uppercase tracking-[0.2em] text-neptura-light-muted transition hover:text-neptura-aurora"
           >
             Close
           </button>
         </div>
 
+        {/* Line Items */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {lines.length === 0 ? (
-            <p className="py-12 text-center text-sm text-neptura-navy/50">
-              Your bag is empty.
+            <p className="py-12 text-center text-sm text-neptura-light-muted">
+              Your bag of stones is empty.
             </p>
           ) : (
             <ul className="space-y-6">
@@ -61,7 +65,7 @@ export default function CartDrawer() {
                   <Link
                     href={`/products/${line.merchandise.product.handle}`}
                     onClick={closeCart}
-                    className="relative h-24 w-20 flex-shrink-0 overflow-hidden bg-white"
+                    className="relative h-24 w-20 flex-shrink-0 bg-neptura-light-surface border border-neptura-light"
                   >
                     {line.merchandise.image ? (
                       <Image
@@ -75,7 +79,7 @@ export default function CartDrawer() {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-neptura-navy/30">
+                      <div className="flex h-full items-center justify-center text-xs text-neptura-light-muted">
                         —
                       </div>
                     )}
@@ -85,16 +89,16 @@ export default function CartDrawer() {
                     <Link
                       href={`/products/${line.merchandise.product.handle}`}
                       onClick={closeCart}
-                      className="truncate font-serif text-sm text-neptura-navy hover:text-neptura-rose"
+                      className="truncate font-display text-sm text-neptura-light-text hover:text-neptura-aurora"
                     >
                       {line.merchandise.product.title}
                     </Link>
                     {line.merchandise.title !== "Default Title" && (
-                      <p className="mt-0.5 text-xs text-neptura-navy/50">
+                      <p className="mt-0.5 text-xs text-neptura-light-muted">
                         {line.merchandise.title}
                       </p>
                     )}
-                    <p className="mt-1 text-sm text-neptura-navy/70">
+                    <p className="mt-1 text-sm font-light text-neptura-light-muted">
                       {formatPrice(
                         line.merchandise.price.amount,
                         line.merchandise.price.currencyCode
@@ -108,12 +112,12 @@ export default function CartDrawer() {
                         onClick={() =>
                           updateLineQuantity(line.id, line.quantity - 1)
                         }
-                        className="flex h-7 w-7 items-center justify-center border border-neptura-navy/20 text-neptura-navy transition hover:border-neptura-rose hover:text-neptura-rose disabled:opacity-40"
+                        className="flex h-7 w-7 items-center justify-center border border-neptura-light text-neptura-light-text transition hover:border-neptura-aurora hover:text-neptura-aurora disabled:opacity-40"
                         aria-label="Decrease quantity"
                       >
                         −
                       </button>
-                      <span className="min-w-[1.5rem] text-center text-sm text-neptura-navy">
+                      <span className="min-w-[1.5rem] text-center text-sm text-neptura-light-text">
                         {line.quantity}
                       </span>
                       <button
@@ -122,7 +126,7 @@ export default function CartDrawer() {
                         onClick={() =>
                           updateLineQuantity(line.id, line.quantity + 1)
                         }
-                        className="flex h-7 w-7 items-center justify-center border border-neptura-navy/20 text-neptura-navy transition hover:border-neptura-rose hover:text-neptura-rose disabled:opacity-40"
+                        className="flex h-7 w-7 items-center justify-center border border-neptura-light text-neptura-light-text transition hover:border-neptura-aurora hover:text-neptura-aurora disabled:opacity-40"
                         aria-label="Increase quantity"
                       >
                         +
@@ -131,7 +135,7 @@ export default function CartDrawer() {
                         type="button"
                         disabled={isLoading}
                         onClick={() => removeFromCart(line.id)}
-                        className="ml-auto text-xs uppercase tracking-wider text-neptura-navy/40 transition hover:text-neptura-rose"
+                        className="ml-auto text-xs uppercase tracking-wider text-neptura-light-muted hover:text-neptura-aurora transition"
                       >
                         Remove
                       </button>
@@ -143,12 +147,13 @@ export default function CartDrawer() {
           )}
         </div>
 
-        <div className="border-t border-neptura-navy/10 px-6 py-5">
+        {/* Footer section */}
+        <div className="border-t border-neptura-light px-6 py-5 bg-neptura-light-surface">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-[0.2em] text-neptura-navy/60">
+            <span className="text-xs uppercase tracking-[0.2em] text-neptura-light-muted">
               Subtotal
             </span>
-            <span className="font-serif text-lg text-neptura-navy">
+            <span className="font-display text-lg text-neptura-light-text">
               {subtotal
                 ? formatPrice(subtotal.amount, subtotal.currencyCode)
                 : formatPrice("0", "INR")}
@@ -158,7 +163,7 @@ export default function CartDrawer() {
           {checkoutUrl && lines.length > 0 ? (
             <a
               href={checkoutUrl}
-              className="block w-full bg-neptura-navy py-4 text-center text-xs uppercase tracking-[0.25em] text-neptura-pearl transition hover:bg-neptura-rose"
+              className="block w-full bg-neptura-light-text py-4 text-center text-xs uppercase tracking-[0.25em] text-neptura-light-bg transition hover:opacity-90"
             >
               Checkout
             </a>
@@ -166,7 +171,7 @@ export default function CartDrawer() {
             <button
               type="button"
               disabled
-              className="block w-full cursor-not-allowed bg-neptura-navy/30 py-4 text-center text-xs uppercase tracking-[0.25em] text-neptura-pearl/70"
+              className="block w-full cursor-not-allowed bg-neptura-light-text/30 py-4 text-center text-xs uppercase tracking-[0.25em] text-neptura-light-bg/70"
             >
               Checkout
             </button>

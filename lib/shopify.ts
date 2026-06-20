@@ -155,20 +155,34 @@ async function adminFetch<T>(
   return json.data as T;
 }
 
-async function getStorefrontAccessToken(): Promise<string> {
-  if (storefrontTokenOverride) {
-    if (storefrontTokenOverride.startsWith("shpat_")) {
-      throw new Error(
-        "SHOPIFY_STOREFRONT_TOKEN is an Admin API token (shpat_...). Remove it and use Client ID/Secret, or paste a Storefront token from the Headless sales channel."
-      );
+const STOREFRONT_TOKEN_TITLE = "Neptura Frontend";
+
+async function listStorefrontAccessTokens(): Promise<
+  { accessToken: string; title: string }[]
+> {
+  const data = await adminFetch<{
+    shop: {
+      storefrontAccessTokens: {
+        edges: { node: { accessToken: string; title: string } }[];
+      };
+    };
+  }>(`query storefrontAccessTokens {
+    shop {
+      storefrontAccessTokens(first: 50) {
+        edges {
+          node {
+            accessToken
+            title
+          }
+        }
+      }
     }
-    return storefrontTokenOverride;
-  }
+  }`);
 
-  if (cachedStorefrontToken) {
-    return cachedStorefrontToken;
-  }
+  return data.shop.storefrontAccessTokens.edges.map((edge) => edge.node);
+}
 
+async function createStorefrontAccessToken(): Promise<string> {
   const data = await adminFetch<{
     storefrontAccessTokenCreate: {
       storefrontAccessToken: { accessToken: string } | null;
@@ -185,7 +199,7 @@ async function getStorefrontAccessToken(): Promise<string> {
         }
       }
     }`,
-    { input: { title: "Neptura Frontend" } }
+    { input: { title: STOREFRONT_TOKEN_TITLE } }
   );
 
   if (data.storefrontAccessTokenCreate.userErrors.length > 0) {
@@ -201,8 +215,55 @@ async function getStorefrontAccessToken(): Promise<string> {
     );
   }
 
-  cachedStorefrontToken = token;
   return token;
+}
+
+async function getStorefrontAccessToken(): Promise<string> {
+  if (storefrontTokenOverride) {
+    if (storefrontTokenOverride.startsWith("shpat_")) {
+      throw new Error(
+        "SHOPIFY_STOREFRONT_TOKEN is an Admin API token (shpat_...). Remove it and use Client ID/Secret, or paste a Storefront token from the Headless sales channel."
+      );
+    }
+    return storefrontTokenOverride;
+  }
+
+  if (cachedStorefrontToken) {
+    return cachedStorefrontToken;
+  }
+
+  const existing = await listStorefrontAccessTokens();
+  const preferred = existing.find(
+    (token) => token.title === STOREFRONT_TOKEN_TITLE
+  );
+  const reusable = preferred ?? existing[0];
+
+  if (reusable?.accessToken) {
+    cachedStorefrontToken = reusable.accessToken;
+    return reusable.accessToken;
+  }
+
+  try {
+    cachedStorefrontToken = await createStorefrontAccessToken();
+    return cachedStorefrontToken;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Storefront token create failed";
+
+    if (message.includes("storefront access token limit")) {
+      const fallback = await listStorefrontAccessTokens();
+      const token =
+        fallback.find((entry) => entry.title === STOREFRONT_TOKEN_TITLE)
+          ?.accessToken ?? fallback[0]?.accessToken;
+
+      if (token) {
+        cachedStorefrontToken = token;
+        return token;
+      }
+    }
+
+    throw error;
+  }
 }
 
 export async function shopifyFetch<T>({
