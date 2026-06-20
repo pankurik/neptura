@@ -18,6 +18,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   signed_out: "You've been signed out. Enter the email for the account you want to use.",
   logout_local:
     "You're signed out on Neptura. If the next sign-in uses the wrong account, sign out again or use a private window.",
+  session_expired: "Your session expired. Please sign in again to continue.",
+  email_updated:
+    "Your email was updated successfully. Sign in with your new address to continue.",
 };
 
 const AUTH_BENEFITS = [
