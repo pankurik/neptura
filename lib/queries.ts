@@ -71,6 +71,35 @@ export const getProductsQuery = `
   }
 `;
 
+export const getProductsByHandlesQuery = `
+  query getProductsByHandles($query: String!, $first: Int!) {
+    products(first: $first, query: $query) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          featuredImage {
+            url
+            altText
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const getProductQuery = `
   query getProduct($handle: String!) {
     product(handle: $handle) {
@@ -307,6 +336,32 @@ export async function getProducts(first = 24): Promise<Product[]> {
     ...catalogCache,
   });
   return data.products.edges.map((edge) => normalizeProductSummary(edge.node));
+}
+
+export async function getProductsByHandles(handles: string[]): Promise<Product[]> {
+  const uniqueHandles = Array.from(new Set(handles.filter(Boolean)));
+
+  if (uniqueHandles.length === 0) {
+    return [];
+  }
+
+  const { shopifyFetch } = await import("./shopify");
+  const query = uniqueHandles.map((handle) => `handle:${handle}`).join(" OR ");
+  const data = await shopifyFetch<{
+    products: { edges: { node: Parameters<typeof normalizeProductSummary>[0] }[] };
+  }>({
+    query: getProductsByHandlesQuery,
+    variables: { query, first: uniqueHandles.length },
+    cache: "no-store",
+  });
+
+  const byHandle = new Map(
+    data.products.edges.map((edge) => [edge.node.handle, normalizeProductSummary(edge.node)])
+  );
+
+  return handles
+    .map((handle) => byHandle.get(handle))
+    .filter((product): product is Product => Boolean(product));
 }
 
 export async function getProduct(handle: string): Promise<Product | null> {
