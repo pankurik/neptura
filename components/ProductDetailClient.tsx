@@ -3,11 +3,13 @@
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import WishlistToggle from "@/components/WishlistToggle";
 import { formatPrice } from "@/lib/shopify";
 import type { Product, ProductVariant, SelectedOptions } from "@/lib/types";
 
 interface ProductDetailClientProps {
   product: Product;
+  isWishlisted?: boolean;
 }
 
 function findVariant(
@@ -23,6 +25,7 @@ function findVariant(
 
 export default function ProductDetailClient({
   product,
+  isWishlisted = false,
 }: ProductDetailClientProps) {
   const { addToCart, isLoading } = useCart();
 
@@ -211,7 +214,7 @@ export default function ProductDetailClient({
           )}
 
           {/* Add to Bag Button (Full Width, Primary Light style) */}
-          <div className="pt-4">
+          <div className="space-y-3 pt-4">
             <button
               type="button"
               onClick={handleAddToBag}
@@ -229,6 +232,8 @@ export default function ProductDetailClient({
                   ? "Adding..."
                   : "Add to Bag"}
             </button>
+
+            <WishlistToggle handle={product.handle} initialSaved={isWishlisted} />
 
             {message && (
               <p
