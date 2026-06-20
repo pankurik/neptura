@@ -14,6 +14,7 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
   const [email, setEmail] = useState(defaultEmail);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const emailIsValid = isValidEmail(email);
 
@@ -31,9 +32,15 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className={`space-y-5 border bg-neptura-light-bg px-6 py-7 transition-colors sm:px-8 sm:py-8 ${
+        isSubmitting ? "auth-form-opening border-neptura-aurora/40" : "border-neptura-light"
+      }`}
+      noValidate
+    >
       {oauthError && (
-        <p className="text-center text-[0.75rem] leading-relaxed text-neptura-aurora">{oauthError}</p>
+        <p className="text-[0.75rem] leading-relaxed text-neptura-aurora">{oauthError}</p>
       )}
 
       <div className="space-y-2">
@@ -55,10 +62,12 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
             setEmail(event.target.value);
             if (fieldError) setFieldError(null);
           }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           aria-invalid={Boolean(fieldError)}
           aria-describedby={fieldError ? "email-error" : undefined}
-          className={`w-full border bg-neptura-light-bg px-4 py-3 text-[0.85rem] font-light text-neptura-light-text outline-none transition-colors focus:border-neptura-aurora/40 ${
-            fieldError ? "border-neptura-aurora" : "border-neptura-light"
+          className={`w-full border bg-neptura-light-bg px-4 py-3 text-[0.85rem] font-light text-neptura-light-text outline-none transition-colors duration-300 ${
+            fieldError || isFocused ? "border-neptura-aurora" : "border-neptura-light"
           }`}
         />
         {fieldError && (
@@ -73,10 +82,10 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
         disabled={!emailIsValid || isSubmitting}
         className="btn-light-primary w-full disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {isSubmitting ? "Continuing…" : "Continue"}
+        {isSubmitting ? "Opening…" : "Continue"}
       </button>
 
-      <p className="text-center text-[0.68rem] font-light leading-relaxed text-neptura-light-muted/80">
+      <p className="text-[0.68rem] font-light leading-relaxed text-neptura-light-muted/80">
         Next you&apos;ll enter a verification code — your email won&apos;t be asked again.
       </p>
     </form>
