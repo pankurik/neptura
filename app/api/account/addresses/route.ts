@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCustomerAddress } from "@/lib/customer-auth/addresses";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 import type { CustomerAddressInput } from "@/lib/customer-auth/types";
 
 export async function POST(request: NextRequest) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: CustomerAddressInput;
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Please fill in all required address fields." }, { status: 400 });
   }
 
-  const { address, errors } = await createCustomerAddress(accessToken, body);
+  const { address, errors } = await createCustomerAddress(session.accessToken, body);
 
   if (errors.length || !address) {
     return NextResponse.json(
