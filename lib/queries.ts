@@ -294,7 +294,7 @@ function normalizeProductSummary(raw: {
   };
 }
 
-const catalogCache = { cache: "force-cache" as const, revalidate: 3600 };
+const catalogCache = { revalidate: 3600 };
 
 export async function getProducts(first = 24): Promise<Product[]> {
   const { shopifyFetch } = await import("./shopify");
