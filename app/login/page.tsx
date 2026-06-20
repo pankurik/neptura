@@ -4,7 +4,7 @@ import { AUTH_COOKIE } from "@/lib/customer-auth/cookies";
 import { sanitizeReturnTo } from "@/lib/customer-auth/return-to";
 
 export const metadata = {
-  title: "Sign in | Neptura",
+  title: "Enter your Universe | Neptura",
   description: "Sign in or create your Neptura account.",
 };
 
