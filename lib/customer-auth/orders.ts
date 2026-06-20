@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/shopify";
 import { customerAccountFetch } from "./graphql";
 import type { OrderLineItemSummary, OrderSummary } from "./types";
 
@@ -312,6 +313,175 @@ export function orderDetailPath(orderGid: string): string {
 
 export function orderPieceCount(order: OrderSummary): number {
   return order.totalItemCount;
+}
+
+export type OrderCollectionSummary = {
+  orderCount: number;
+  totalPieces: number;
+  totalSpent: { amount: string; currencyCode: string } | null;
+  lastOrderDate: string | null;
+};
+
+export function summarizeOrderCollection(orders: OrderSummary[]): OrderCollectionSummary {
+  if (orders.length === 0) {
+    return {
+      orderCount: 0,
+      totalPieces: 0,
+      totalSpent: null,
+      lastOrderDate: null,
+    };
+  }
+
+  const totalPieces = orders.reduce((sum, order) => sum + orderPieceCount(order), 0);
+  const currencyCode = orders[0]?.totalPrice.currencyCode ?? "INR";
+  let totalAmount = 0;
+
+  for (const order of orders) {
+    const amount = parseFloat(order.totalPrice.amount);
+
+    if (Number.isFinite(amount) && order.totalPrice.currencyCode === currencyCode) {
+      totalAmount += amount;
+    }
+  }
+
+  return {
+    orderCount: orders.length,
+    totalPieces,
+    totalSpent:
+      totalAmount > 0
+        ? { amount: totalAmount.toFixed(2), currencyCode }
+        : null,
+    lastOrderDate: orders[0]?.processedAt ?? null,
+  };
+}
+
+export function formatOrderCollectionHeroSubtitle(summary: OrderCollectionSummary): string {
+  const { primary, secondary } = formatOrderCollectionHeroMeta(summary);
+  return secondary ? `${primary} · ${secondary}` : primary;
+}
+
+export function formatOrderCollectionHeroMeta(summary: OrderCollectionSummary): {
+  primary: string;
+  secondary?: string;
+} {
+  const primaryParts = [
+    `${summary.orderCount} ${summary.orderCount === 1 ? "order" : "orders"}`,
+    `${summary.totalPieces} ${summary.totalPieces === 1 ? "piece" : "pieces"}`,
+  ];
+
+  if (summary.totalSpent) {
+    primaryParts.push(formatPrice(summary.totalSpent.amount, summary.totalSpent.currencyCode));
+  }
+
+  return {
+    primary: primaryParts.join(" · "),
+    secondary: summary.lastOrderDate
+      ? `Last order ${formatOrderDateShort(summary.lastOrderDate)}`
+      : undefined,
+  };
+}
+
+export type OrderStatusFilter = "all" | "delivered" | "in_transit" | "confirmed";
+
+export type OrderSortKey = "newest" | "oldest" | "amount_high" | "amount_low";
+
+const DELIVERED_STATUS_LABELS = new Set(["Delivered", "Picked up", "Partially delivered"]);
+const IN_TRANSIT_STATUS_LABELS = new Set([
+  "In transit",
+  "Out for delivery",
+  "Delivery attempted",
+  "Ready for pickup",
+  "Delayed",
+  "Shipped",
+  "Partially shipped",
+  "Delivery failed",
+]);
+
+export function orderStatusFilterBucket(order: OrderSummary): OrderStatusFilter {
+  const label = formatOrderStatusLabel(order);
+
+  if (DELIVERED_STATUS_LABELS.has(label)) {
+    return "delivered";
+  }
+
+  if (IN_TRANSIT_STATUS_LABELS.has(label)) {
+    return "in_transit";
+  }
+
+  return "confirmed";
+}
+
+export function filterOrdersByStatus(
+  orders: OrderSummary[],
+  status: OrderStatusFilter
+): OrderSummary[] {
+  if (status === "all") {
+    return orders;
+  }
+
+  return orders.filter((order) => orderStatusFilterBucket(order) === status);
+}
+
+export function filterOrdersByQuery(orders: OrderSummary[], query: string): OrderSummary[] {
+  const normalized = query.trim().toLowerCase();
+
+  if (!normalized) {
+    return orders;
+  }
+
+  return orders.filter((order) => {
+    if (order.name.toLowerCase().includes(normalized)) {
+      return true;
+    }
+
+    return order.lineItems.some((item) => item.title.toLowerCase().includes(normalized));
+  });
+}
+
+function orderAmount(order: OrderSummary): number {
+  const amount = parseFloat(order.totalPrice.amount);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+export function sortOrders(orders: OrderSummary[], sort: OrderSortKey): OrderSummary[] {
+  const sorted = [...orders];
+
+  switch (sort) {
+    case "oldest":
+      return sorted.sort(
+        (a, b) => new Date(a.processedAt).getTime() - new Date(b.processedAt).getTime()
+      );
+    case "amount_high":
+      return sorted.sort((a, b) => orderAmount(b) - orderAmount(a));
+    case "amount_low":
+      return sorted.sort((a, b) => orderAmount(a) - orderAmount(b));
+    case "newest":
+    default:
+      return sorted.sort(
+        (a, b) => new Date(b.processedAt).getTime() - new Date(a.processedAt).getTime()
+      );
+  }
+}
+
+export function formatOrderProductPreview(order: OrderSummary): string | null {
+  const lineItems = order.lineItems;
+
+  if (lineItems.length === 0) {
+    return null;
+  }
+
+  const firstTitle = lineItems[0]?.title;
+  const pieces = orderPieceCount(order);
+
+  if (!firstTitle) {
+    return null;
+  }
+
+  if (pieces <= 1) {
+    return firstTitle;
+  }
+
+  return `${firstTitle} · and ${pieces - 1} more`;
 }
 
 export async function fetchCustomerOrder(
