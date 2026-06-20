@@ -120,11 +120,45 @@ async function main() {
   } else {
     ok(`App URL: ${appUrl}`);
     ok(`Callback URL to register: ${appUrl}/api/auth/callback`);
+    ok(`Logout URI to register: ${appUrl}/login`);
   }
 
-  console.log("\nStorefront scopes (catalog/cart) are separate — no change needed:");
+  console.log("\nStorefront scopes (catalog/cart):");
   console.log("  unauthenticated_write_checkouts, unauthenticated_read_product_inventory,");
-  console.log("  unauthenticated_read_product_listings\n");
+  console.log("  unauthenticated_read_product_listings");
+
+  const storefrontClientId = process.env.SHOPIFY_CLIENT_ID?.trim();
+  const storefrontClientSecret = process.env.SHOPIFY_CLIENT_SECRET?.trim();
+
+  if (storefrontClientId && storefrontClientSecret && storeDomain.endsWith(".myshopify.com")) {
+    try {
+      const res = await fetch(`https://${storeDomain}/admin/oauth/access_token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "client_credentials",
+          client_id: storefrontClientId,
+          client_secret: storefrontClientSecret,
+        }),
+      });
+      const json = await res.json();
+      const scopes = json.scope?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+
+      if (scopes.includes("write_customers")) {
+        ok("Admin API write_customers scope present (contact phone updates)");
+      } else {
+        warn("Missing Admin API write_customers scope — contact phone needs a saved address as fallback");
+        console.log("  Fix: Dev Dashboard → your app → Versions → Access → add read_customers + write_customers");
+        console.log("       → Release → reinstall app on store → restart dev server\n");
+      }
+    } catch {
+      warn("Could not verify Admin API scopes for phone updates");
+    }
+  } else {
+    warn("Set SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET to verify Admin API scopes for phone");
+  }
+
+  console.log("");
 }
 
 main().catch((err) => {
