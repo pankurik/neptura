@@ -7,6 +7,8 @@ Branch: `master` (design system merged from `design-system`)
 - [x] **Design system** — `docs/DESIGN_SYSTEM.md`, tokens in `app/globals.css` + `tailwind.config.ts`, `lib/formatPrice.ts`, `.gitignore` updated
 - [x] **Navbar** — dark world nav per spec (`components/Navbar.tsx`)
 - [x] **Hero** — star field, diamond animation, CTAs (`components/Hero.tsx`)
+- [x] **Customer auth** — OAuth login, `/login` Enter your Universe polish, account dashboard (see `.cursor/decisions/account-creation.md`)
+- [x] **Account onboarding** — new users → `/account` with inline profile (no separate setup page)
 
 ## Up next
 
