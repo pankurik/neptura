@@ -121,6 +121,76 @@
     text-transform: uppercase;
   }
 
+  .auth-heading-universe {
+    font-style: italic;
+    background: linear-gradient(
+      105deg,
+      var(--neptura-light-text) 0%,
+      var(--neptura-aurora) 45%,
+      var(--neptura-violet) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: auth-universe-shimmer 10s ease-in-out infinite;
+  }
+
+  .auth-enter {
+    opacity: 0;
+    animation: neptura-fade-up 0.85s var(--neptura-ease-out-expo) both;
+  }
+
+  .auth-enter-delay-0 {
+    animation-delay: 0s;
+  }
+
+  .auth-enter-delay-1 {
+    animation-delay: 0.1s;
+  }
+
+  .auth-enter-delay-2 {
+    animation-delay: 0.28s;
+  }
+
+  .auth-enter-delay-3 {
+    animation-delay: 0.42s;
+  }
+
+  .auth-enter-delay-4 {
+    animation-delay: 0.52s;
+  }
+
+  .auth-enter-delay-5 {
+    animation-delay: 0.72s;
+  }
+
+  .auth-enter-delay-6 {
+    animation-delay: 0.92s;
+  }
+
+  .auth-universe-word {
+    font-style: italic;
+    background: linear-gradient(
+      105deg,
+      var(--neptura-light-text) 0%,
+      var(--neptura-aurora) 45%,
+      var(--neptura-violet) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0;
+    animation:
+      neptura-fade-up 0.85s var(--neptura-ease-out-expo) 0.28s both,
+      auth-universe-shimmer 10s ease-in-out 1.15s infinite;
+  }
+
+  .auth-form-opening {
+    animation: auth-airlock-pulse 2.2s ease-in-out infinite;
+  }
+
   .section-label {
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: var(--neptura-text-label);
@@ -136,6 +206,15 @@
       var(--neptura-void) 0%,
       var(--neptura-deep) 40%,
       var(--neptura-light-bg) 100%
+    );
+  }
+
+  .auth-page-bg {
+    background: linear-gradient(
+      to bottom,
+      var(--neptura-light-bg) 0%,
+      var(--neptura-light-bg) 72%,
+      var(--neptura-light-surface) 100%
     );
   }
 }
@@ -441,16 +520,40 @@
   }
 }
 
+@keyframes auth-universe-shimmer {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+@keyframes auth-airlock-pulse {
+  0%,
+  100% {
+    border-color: var(--neptura-light-border);
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--neptura-aurora) 55%, var(--neptura-light-border));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-neptura-twinkle,
   .animate-neptura-diamond-enter,
   .animate-neptura-pulse-ring,
   .animate-neptura-particle-drift,
   .animate-neptura-fade-up,
-  .hero-scroll-cue {
+  .hero-scroll-cue,
+  .auth-heading-universe,
+  .auth-enter,
+  .auth-universe-word,
+  .auth-form-opening {
     animation: none !important;
     opacity: 1 !important;
-    transform: translate(-50%, 0) !important;
+    transform: none !important;
   }
 
   .hero-scroll-cue-line {
