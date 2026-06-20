@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cartLinesAdd, createCart } from "@/lib/queries";
+import {
+  cartLinesAdd,
+  cartLinesRemove,
+  cartLinesUpdate,
+  createCart,
+  getCart,
+} from "@/lib/queries";
 
 export async function GET(request: NextRequest) {
   const cartId = request.nextUrl.searchParams.get("cartId");
@@ -8,55 +14,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { shopifyFetch } = await import("@/lib/shopify");
-
-    const cartQuery = `
-      query getCart($cartId: ID!) {
-        cart(id: $cartId) {
-          id
-          checkoutUrl
-          totalQuantity
-          lines(first: 100) {
-            edges {
-              node {
-                id
-                quantity
-                merchandise {
-                  ... on ProductVariant {
-                    id
-                    title
-                    product {
-                      title
-                      handle
-                    }
-                    price {
-                      amount
-                      currencyCode
-                    }
-                    image {
-                      url
-                      altText
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    const data = await shopifyFetch<{ cart: unknown }>({
-      query: cartQuery,
-      variables: { cartId },
-      cache: "no-store",
-    });
-
-    if (!data.cart) {
+    const cart = await getCart(cartId);
+    if (!cart) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }
-
-    return NextResponse.json(data.cart);
+    return NextResponse.json(cart);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ message }, { status: 500 });
@@ -66,7 +28,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, cartId, lines } = body;
+    const { action, cartId, lines, lineIds } = body;
 
     if (action === "create") {
       const cart = await createCart(lines ?? []);
@@ -81,6 +43,28 @@ export async function POST(request: NextRequest) {
         );
       }
       const cart = await cartLinesAdd(cartId, lines);
+      return NextResponse.json(cart);
+    }
+
+    if (action === "update") {
+      if (!cartId || !lines) {
+        return NextResponse.json(
+          { message: "Missing cartId or lines" },
+          { status: 400 }
+        );
+      }
+      const cart = await cartLinesUpdate(cartId, lines);
+      return NextResponse.json(cart);
+    }
+
+    if (action === "remove") {
+      if (!cartId || !lineIds) {
+        return NextResponse.json(
+          { message: "Missing cartId or lineIds" },
+          { status: 400 }
+        );
+      }
+      const cart = await cartLinesRemove(cartId, lineIds);
       return NextResponse.json(cart);
     }
 
