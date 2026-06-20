@@ -134,7 +134,7 @@ export default function AccountSidebar({
           className="mt-10 flex-1"
         />
 
-        <div className="mt-auto border-t border-neptura-ice/10 pt-6">
+        <div className="mt-auto pt-6">
           <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
             Sign out
           </Link>
@@ -183,7 +183,7 @@ export default function AccountSidebar({
           </ul>
         </div>
 
-        <div className="mt-5 border-t border-neptura-ice/10 pt-5">
+        <div className="mt-5">
           <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
             Sign out
           </Link>
