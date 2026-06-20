@@ -1,6 +1,8 @@
 import Link from "next/link";
 import AccountSectionHeader from "@/components/account/AccountSectionHeader";
-import AccountWishlistGrid from "@/components/account/AccountWishlistGrid";
+import AccountWishlistGrid, {
+  WISHLIST_PREVIEW_LIMIT,
+} from "@/components/account/AccountWishlistGrid";
 import type { Product } from "@/lib/types";
 
 type AccountWishlistSectionProps = {
@@ -12,6 +14,9 @@ export default function AccountWishlistSection({
   products,
   handleCount,
 }: AccountWishlistSectionProps) {
+  const previewProducts = products.slice(0, WISHLIST_PREVIEW_LIMIT);
+  const hasMoreWishlist = handleCount > WISHLIST_PREVIEW_LIMIT;
+
   return (
     <section aria-labelledby="account-wishlist-title">
       <AccountSectionHeader
@@ -40,7 +45,16 @@ export default function AccountWishlistSection({
         </div>
       ) : (
         <div className="mt-8">
-          <AccountWishlistGrid products={products} />
+          <AccountWishlistGrid products={previewProducts} />
+
+          {hasMoreWishlist && (
+            <Link
+              href="/account/wishlist"
+              className="mt-4 block w-full border border-neptura-light bg-neptura-light-bg py-3 text-center text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:border-neptura-aurora/35 hover:text-neptura-light-text"
+            >
+              Show all wishlist
+            </Link>
+          )}
         </div>
       )}
     </section>
