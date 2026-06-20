@@ -54,6 +54,8 @@ const config: Config = {
       },
       letterSpacing: {
         logo: "0.25em",
+        brand: "0.1em",
+        "brand-tight": "0.06em",
         nav: "0.14em",
         button: "0.16em",
         label: "0.24em",
