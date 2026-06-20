@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addCustomerBespokeCommission } from "@/lib/customer-auth/bespoke-commissions";
-import { requireCustomerSession } from "@/lib/customer-auth/require-session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 
 type BespokeBody = {
   name?: string;
@@ -15,10 +18,7 @@ export async function POST(request: NextRequest) {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: BespokeBody;
