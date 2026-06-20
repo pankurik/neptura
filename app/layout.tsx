@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
-import Header from "@/components/Header";
+import CartDrawer from "@/components/CartDrawer";
+import Navbar from "@/components/Navbar";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-cormorant",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Neptura",
-  description: "Ocean-inspired essentials from the deep.",
+  description: "Fine jewellery from the deep.",
 };
 
 export default function RootLayout({
@@ -18,10 +28,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body
+        className={`${cormorant.variable} ${inter.variable} bg-neptura-pearl font-sans text-neptura-navy antialiased`}
+      >
         <CartProvider>
-          <Header />
-          <main>{children}</main>
+          <Navbar />
+          <CartDrawer />
+          <main className="pt-16">{children}</main>
         </CartProvider>
       </body>
     </html>
