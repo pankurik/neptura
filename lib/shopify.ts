@@ -210,11 +210,13 @@ export async function shopifyFetch<T>({
   variables = {},
   cache = "force-cache",
   tags,
+  revalidate,
 }: {
   query: string;
   variables?: Record<string, unknown>;
   cache?: RequestCache;
   tags?: string[];
+  revalidate?: number;
 }): Promise<T> {
   requireEnv();
 
@@ -222,6 +224,10 @@ export async function shopifyFetch<T>({
   const storefrontDomain = domain!.endsWith(".myshopify.com")
     ? domain!
     : await getMyshopifyDomain();
+
+  const nextOptions: { revalidate?: number; tags?: string[] } = {};
+  if (revalidate !== undefined) nextOptions.revalidate = revalidate;
+  if (tags) nextOptions.tags = tags;
 
   const response = await fetch(
     `https://${storefrontDomain}/api/${apiVersion}/graphql.json`,
@@ -233,7 +239,7 @@ export async function shopifyFetch<T>({
       },
       body: JSON.stringify({ query, variables }),
       cache,
-      ...(tags ? { next: { tags } } : {}),
+      ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
     }
   );
 
