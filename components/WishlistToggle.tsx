@@ -68,7 +68,7 @@ export default function WishlistToggle({
 
       {saved && (
         <Link
-          href="/account#wishlist"
+          href="/account/wishlist"
           className="mt-3 block text-center text-[0.68rem] uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-aurora"
         >
           View wishlist
