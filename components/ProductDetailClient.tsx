@@ -4,15 +4,15 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/shopify";
-import type { ProductDetail, ProductVariant } from "@/lib/queries";
+import type { Product, ProductVariant, SelectedOptions } from "@/lib/types";
 
 interface ProductDetailClientProps {
-  product: ProductDetail;
+  product: Product;
 }
 
 function findVariant(
   variants: ProductVariant[],
-  selectedOptions: Record<string, string>
+  selectedOptions: SelectedOptions
 ): ProductVariant | undefined {
   return variants.find((variant) =>
     variant.selectedOptions.every(
@@ -25,10 +25,9 @@ export default function ProductDetailClient({
   product,
 }: ProductDetailClientProps) {
   const { addToCart, isLoading } = useCart();
-  const variants = product.variants.edges.map((edge) => edge.node);
 
   const initialOptions = useMemo(() => {
-    const options: Record<string, string> = {};
+    const options: SelectedOptions = {};
     product.options.forEach((option) => {
       options[option.name] = option.values[0];
     });
@@ -36,19 +35,19 @@ export default function ProductDetailClient({
   }, [product.options]);
 
   const [selectedOptions, setSelectedOptions] =
-    useState<Record<string, string>>(initialOptions);
+    useState<SelectedOptions>(initialOptions);
   const [adding, setAdding] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const selectedVariant = useMemo(
-    () => findVariant(variants, selectedOptions),
-    [variants, selectedOptions]
+    () => findVariant(product.variants, selectedOptions),
+    [product.variants, selectedOptions]
   );
 
   const displayImage =
     selectedVariant?.image ??
     product.featuredImage ??
-    product.images.edges[0]?.node;
+    product.images[0];
 
   const handleOptionChange = (name: string, value: string) => {
     setSelectedOptions((prev) => ({ ...prev, [name]: value }));
@@ -80,7 +79,7 @@ export default function ProductDetailClient({
 
   return (
     <div className="mx-auto grid max-w-7xl gap-12 px-6 py-12 lg:grid-cols-2">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-white shadow-sm">
+      <div className="relative aspect-square overflow-hidden bg-white">
         {displayImage ? (
           <Image
             src={displayImage.url}
@@ -91,19 +90,19 @@ export default function ProductDetailClient({
             priority
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-neptura-ocean/30">
+          <div className="flex h-full items-center justify-center text-neptura-navy/30">
             No image
           </div>
         )}
       </div>
 
       <div className="flex flex-col justify-center">
-        <h1 className="text-3xl font-light tracking-tight text-neptura-navy md:text-4xl">
+        <h1 className="font-serif text-3xl font-light text-neptura-navy md:text-4xl">
           {product.title}
         </h1>
 
         {selectedVariant && (
-          <p className="mt-4 text-xl text-neptura-ocean">
+          <p className="mt-4 font-serif text-xl text-neptura-rose">
             {formatPrice(
               selectedVariant.price.amount,
               selectedVariant.price.currencyCode
@@ -112,7 +111,7 @@ export default function ProductDetailClient({
         )}
 
         {product.description && (
-          <p className="mt-6 leading-relaxed text-neptura-ocean/80">
+          <p className="mt-6 leading-relaxed text-neptura-navy/70">
             {product.description}
           </p>
         )}
@@ -120,7 +119,7 @@ export default function ProductDetailClient({
         <div className="mt-8 space-y-6">
           {product.options.map((option) => (
             <div key={option.name}>
-              <label className="mb-2 block text-xs uppercase tracking-widest text-neptura-ocean">
+              <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-neptura-navy/50">
                 {option.name}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -131,10 +130,10 @@ export default function ProductDetailClient({
                       key={value}
                       type="button"
                       onClick={() => handleOptionChange(option.name, value)}
-                      className={`rounded-full border px-4 py-2 text-sm transition ${
+                      className={`border px-4 py-2 text-sm transition ${
                         isSelected
-                          ? "border-neptura-navy bg-neptura-navy text-white"
-                          : "border-neptura-ocean/20 bg-white text-neptura-navy hover:border-neptura-ocean/40"
+                          ? "border-neptura-navy bg-neptura-navy text-neptura-pearl"
+                          : "border-neptura-navy/20 bg-white text-neptura-navy hover:border-neptura-rose"
                       }`}
                     >
                       {value}
@@ -155,7 +154,7 @@ export default function ProductDetailClient({
             !selectedVariant ||
             !selectedVariant.availableForSale
           }
-          className="mt-10 w-full rounded-full bg-neptura-navy px-8 py-4 text-sm uppercase tracking-widest text-white transition hover:bg-neptura-ocean disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-10 w-full bg-neptura-navy py-4 text-xs uppercase tracking-[0.25em] text-neptura-pearl transition hover:bg-neptura-rose disabled:cursor-not-allowed disabled:opacity-50"
         >
           {selectedVariant && !selectedVariant.availableForSale
             ? "Sold Out"
@@ -168,7 +167,7 @@ export default function ProductDetailClient({
           <p
             className={`mt-4 text-sm ${
               message === "Added to bag!"
-                ? "text-neptura-seafoam"
+                ? "text-neptura-rose"
                 : "text-red-600"
             }`}
           >
