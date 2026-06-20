@@ -1,3 +1,10 @@
+import { fetchCustomerAvatarUrl } from "./avatar";
+import { CustomerAuthError } from "./auth-errors";
+import { updateCustomerEmailAdmin } from "./email";
+import { fetchCustomerBespokeCommissions } from "./bespoke-commissions";
+import { fetchCustomerPreferences } from "./preferences";
+import { forceRefreshCustomerAccessToken } from "./session";
+import { fetchCustomerWishlist } from "./wishlist";
 import { customerAccountFetch } from "./graphql";
 import type { CustomerSummary } from "./types";
 
@@ -8,6 +15,7 @@ const CUSTOMER_QUERY = `#graphql
       firstName
       lastName
       displayName
+      creationDate
       imageUrl
       emailAddress {
         emailAddress
@@ -47,6 +55,7 @@ type CustomerQueryResult = {
     firstName?: string | null;
     lastName?: string | null;
     displayName?: string | null;
+    creationDate?: string | null;
     imageUrl?: string | null;
     emailAddress?: {
       emailAddress?: string | null;
@@ -85,7 +94,15 @@ function mapCustomer(customer: NonNullable<CustomerQueryResult["customer"]>): Cu
     displayName: customer.displayName ?? null,
     email: customer.emailAddress?.emailAddress ?? null,
     imageUrl: customer.imageUrl ?? null,
+    avatarUrl: null,
     phone: customer.phoneNumber?.phoneNumber ?? null,
+    memberSince: customer.creationDate ?? null,
+    birthday: null,
+    anniversary: null,
+    ringSize: null,
+    jewelryPreferences: [],
+    wishlistHandles: [],
+    bespokeCommissions: [],
     emailMarketingState: customer.emailAddress?.marketingState ?? null,
     smsMarketingState: customer.phoneNumber?.marketingState ?? null,
     defaultAddressId: customer.defaultAddress?.id ?? null,
@@ -119,31 +136,24 @@ export async function fetchCustomerProfile(
     return null;
   }
 
-  return mapCustomer(data.customer);
+  const customer = mapCustomer(data.customer);
+  const [avatarUrl, preferences, wishlistHandles, bespokeCommissions] = await Promise.all([
+    fetchCustomerAvatarUrl(customer.id),
+    fetchCustomerPreferences(customer.id),
+    fetchCustomerWishlist(customer.id),
+    fetchCustomerBespokeCommissions(customer.id),
+  ]);
+
+  return {
+    ...customer,
+    avatarUrl,
+    ...preferences,
+    wishlistHandles,
+    bespokeCommissions,
+  };
 }
 
-export function getCustomerInitials(customer: CustomerSummary): string {
-  const first = customer.firstName?.trim().charAt(0) ?? "";
-  const last = customer.lastName?.trim().charAt(0) ?? "";
-
-  if (first || last) {
-    return `${first}${last}`.toUpperCase();
-  }
-
-  const emailInitial = customer.email?.trim().charAt(0);
-  return emailInitial ? emailInitial.toUpperCase() : "?";
-}
-
-export function getCustomerDisplayLabel(customer: CustomerSummary): string {
-  if (customer.firstName) return customer.firstName;
-  if (customer.displayName) return customer.displayName;
-  if (customer.email) return customer.email.split("@")[0] ?? "Account";
-  return "Account";
-}
-
-export function isProfileComplete(customer: CustomerSummary): boolean {
-  return Boolean(customer.firstName?.trim());
-}
+export { formatMemberSince, getCustomerDisplayLabel, getCustomerInitials, getCustomerAvatarUrl, isProfileComplete } from "./display";
 
 const CUSTOMER_UPDATE_MUTATION = `#graphql
   mutation CustomerUpdate($input: CustomerUpdateInput!) {
@@ -180,41 +190,151 @@ type CustomerUpdateResult = {
 export type CustomerProfileInput = {
   firstName: string;
   lastName?: string;
+  email?: string;
 };
+
+export type CustomerProfileUpdateResult = {
+  customer: CustomerSummary | null;
+  errors: string[];
+  suggestReauth?: boolean;
+};
+
+function applyProfileInput(
+  current: CustomerSummary,
+  input: CustomerProfileInput,
+  email: string | null
+): CustomerSummary {
+  return {
+    ...current,
+    email,
+    firstName: input.firstName.trim(),
+    lastName: input.lastName?.trim() ?? current.lastName,
+  };
+}
 
 export async function updateCustomerProfile(
   accessToken: string,
   input: CustomerProfileInput
-): Promise<{ customer: CustomerSummary | null; errors: string[] }> {
-  const { data, errors } = await customerAccountFetch<CustomerUpdateResult>(
-    accessToken,
-    CUSTOMER_UPDATE_MUTATION,
-    {
-      input: {
-        firstName: input.firstName.trim(),
-        ...(input.lastName?.trim() ? { lastName: input.lastName.trim() } : {}),
-      },
+): Promise<CustomerProfileUpdateResult> {
+  try {
+    return await updateCustomerProfileWithToken(accessToken, input);
+  } catch (error) {
+    if (!(error instanceof CustomerAuthError)) {
+      throw error;
     }
-  );
-
-  if (errors.length) {
-    return { customer: null, errors };
   }
 
-  const payload = data?.customerUpdate;
-  const userErrors = payload?.userErrors ?? [];
+  const refreshedToken = await forceRefreshCustomerAccessToken();
 
-  if (userErrors.length) {
-    return { customer: null, errors: userErrors.map((error) => error.message) };
+  if (!refreshedToken) {
+    return { customer: null, errors: ["Your session expired. Please sign in again."] };
   }
 
-  const customer = payload?.customer;
-  if (!customer) {
+  try {
+    return await updateCustomerProfileWithToken(refreshedToken, input);
+  } catch (error) {
+    if (error instanceof CustomerAuthError) {
+      return { customer: null, errors: ["Your session expired. Please sign in again."] };
+    }
+
+    throw error;
+  }
+}
+
+async function updateCustomerProfileWithToken(
+  accessToken: string,
+  input: CustomerProfileInput
+): Promise<CustomerProfileUpdateResult> {
+  let token = accessToken;
+
+  let current: CustomerSummary | null;
+  try {
+    current = await fetchCustomerProfile(token);
+  } catch (error) {
+    if (error instanceof CustomerAuthError) {
+      throw error;
+    }
+    return { customer: null, errors: ["Not signed in."] };
+  }
+
+  if (!current) {
+    return { customer: null, errors: ["Not signed in."] };
+  }
+
+  const trimmedEmail = input.email?.trim().toLowerCase() ?? "";
+  const currentEmail = current.email?.trim().toLowerCase() ?? "";
+  const emailWillChange = Boolean(trimmedEmail && trimmedEmail !== currentEmail);
+
+  // Update name first while the Customer Account token is still valid.
+  try {
+    const { data, errors } = await customerAccountFetch<CustomerUpdateResult>(
+      token,
+      CUSTOMER_UPDATE_MUTATION,
+      {
+        input: {
+          firstName: input.firstName.trim(),
+          ...(input.lastName?.trim() ? { lastName: input.lastName.trim() } : {}),
+        },
+      }
+    );
+
+    if (errors.length) {
+      return { customer: null, errors };
+    }
+
+    const userErrors = data?.customerUpdate?.userErrors ?? [];
+    if (userErrors.length) {
+      return { customer: null, errors: userErrors.map((error) => error.message) };
+    }
+  } catch (error) {
+    if (error instanceof CustomerAuthError) {
+      throw error;
+    }
     return { customer: null, errors: ["Profile could not be updated."] };
   }
 
-  return {
-    customer: mapCustomer(customer),
-    errors: [],
-  };
+  let updatedEmail = current.email;
+
+  if (emailWillChange) {
+    const emailResult = await updateCustomerEmailAdmin(current.id, trimmedEmail);
+
+    if (emailResult.errors.length) {
+      return { customer: null, errors: emailResult.errors };
+    }
+
+    updatedEmail = emailResult.email ?? trimmedEmail;
+
+    const refreshed = await forceRefreshCustomerAccessToken();
+    if (refreshed) {
+      token = refreshed;
+    }
+  }
+
+  try {
+    const updated = await fetchCustomerProfile(token);
+
+    if (updated) {
+      return { customer: updated, errors: [] };
+    }
+  } catch (error) {
+    if (emailWillChange && error instanceof CustomerAuthError) {
+      return {
+        customer: applyProfileInput(current, input, updatedEmail),
+        errors: [],
+        suggestReauth: true,
+      };
+    }
+
+    throw error;
+  }
+
+  if (emailWillChange) {
+    return {
+      customer: applyProfileInput(current, input, updatedEmail),
+      errors: [],
+      suggestReauth: true,
+    };
+  }
+
+  return { customer: null, errors: ["Profile could not be updated."] };
 }
