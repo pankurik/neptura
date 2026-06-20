@@ -19,9 +19,13 @@ import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 type AccountPhoneSectionProps = {
   customer: CustomerSummary;
+  embedded?: boolean;
 };
 
-export default function AccountPhoneSection({ customer }: AccountPhoneSectionProps) {
+export default function AccountPhoneSection({
+  customer,
+  embedded = false,
+}: AccountPhoneSectionProps) {
   const router = useRouter();
   const displayPhone = getCustomerDisplayPhone(customer);
   const initialPhone = parseE164Phone(displayPhone);
@@ -101,19 +105,21 @@ export default function AccountPhoneSection({ customer }: AccountPhoneSectionPro
     }
   }
 
+  const wrapperClass = embedded
+    ? "border border-neptura-light bg-neptura-light-bg p-6 sm:p-8"
+    : `mt-10 ${accountSectionClassName}`;
+
   return (
-    <div className={`mt-10 ${accountSectionClassName}`}>
+    <div className={wrapperClass}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className={accountSectionLabelClassName}>Phone</p>
           <p className="mt-3 text-[0.8rem] font-light text-neptura-light-muted">
             {displayPhone ? formatPhoneDisplay(displayPhone) : "No phone number on file"}
           </p>
-          {!displayPhone && customer.addresses.length === 0 && (
-            <p className="mt-2 text-[0.72rem] font-light leading-relaxed text-neptura-light-muted/80">
-              Add a saved address below, or enable{" "}
-              <span className="text-neptura-light-muted">write_customers</span> on your Shopify app
-              for a standalone contact number.
+          {!displayPhone && (
+            <p className="mt-2 text-[0.72rem] font-light leading-relaxed text-neptura-light-muted">
+              For delivery updates and bespoke follow-ups.
             </p>
           )}
         </div>
