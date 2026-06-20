@@ -78,31 +78,37 @@ export default function AuthShell({ returnTo, error, signedOut, defaultEmail }: 
       : null;
 
   return (
-    <div className="min-h-screen bg-neptura-light-bg pt-28 pb-24">
-      <div className="mx-auto max-w-lg px-6">
-        <div className="space-y-3 text-center">
-          <h1 className="font-display text-[clamp(1.8rem,4vw,2.4rem)] font-light text-neptura-light-text">
-            Sign in or create account
+    <div className="auth-page-bg flex min-h-screen flex-col justify-center px-6 pb-32 pt-20">
+      <div className="mx-auto w-full max-w-md -translate-y-4">
+        <header className="text-center">
+          <h1 className="font-display text-[clamp(2.35rem,5.5vw,3rem)] font-light leading-tight text-neptura-light-text">
+            <span className="auth-enter auth-enter-delay-1 inline-block">Enter your</span>{" "}
+            <span className="auth-universe-word inline-block">Universe</span>
           </h1>
-          <p className="text-[0.8rem] font-light leading-[1.8] text-neptura-light-muted">
-            We&apos;ll recognize if you already have an account
-          </p>
-        </div>
+          <div className="mt-4 space-y-1">
+            <p className="auth-enter auth-enter-delay-3 text-[0.8rem] font-light leading-relaxed text-neptura-light-muted">
+              Sign in or create account
+            </p>
+            <p className="auth-enter auth-enter-delay-4 text-[0.76rem] font-light leading-relaxed text-neptura-light-muted/75">
+              We&apos;ll recognize if you already have an account
+            </p>
+          </div>
+        </header>
 
-        <div className="mt-10 border border-neptura-light bg-neptura-light-bg px-6 py-8 sm:px-10 sm:py-10">
+        <div className="auth-enter auth-enter-delay-5 mt-8">
           <AuthEmailForm returnTo={returnTo} oauthError={oauthError} defaultEmail={defaultEmail} />
         </div>
 
-        <ul className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6">
+        <ul className="auth-enter auth-enter-delay-6 mt-8 grid gap-6 border-t border-neptura-light pt-8 sm:grid-cols-3 sm:gap-5">
           {AUTH_BENEFITS.map((benefit) => (
             <li key={benefit.title} className="text-center">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center text-neptura-aurora">
+              <div className="mx-auto flex h-9 w-9 items-center justify-center text-neptura-aurora">
                 {benefit.icon}
               </div>
-              <p className="mt-3 text-[0.68rem] font-normal uppercase tracking-[0.14em] text-neptura-light-text">
+              <p className="mt-2.5 text-[0.65rem] font-normal uppercase tracking-[0.14em] text-neptura-light-text">
                 {benefit.title}
               </p>
-              <p className="mt-2 text-[0.72rem] font-light leading-[1.7] text-neptura-light-muted">
+              <p className="mt-1.5 text-[0.7rem] font-light leading-[1.65] text-neptura-light-muted">
                 {benefit.description}
               </p>
             </li>
