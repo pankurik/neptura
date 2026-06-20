@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { friendlyAuthError } from "@/lib/customer-auth/auth-errors";
 import { updateCustomerProfile } from "@/lib/customer-auth/customer";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
+import { requireCustomerSession } from "@/lib/customer-auth/require-session";
+import { clearCustomerSession } from "@/lib/customer-auth/session";
 
 type ProfileBody = {
   firstName?: string;
   lastName?: string;
+  email?: string;
 };
 
 export async function POST(request: NextRequest) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return NextResponse.json(
+      { error: "Your session expired. Please sign in again." },
+      { status: 401 }
+    );
   }
 
   let body: ProfileBody;
@@ -28,17 +34,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "First name is required." }, { status: 400 });
   }
 
-  const { customer, errors } = await updateCustomerProfile(accessToken, {
+  const { customer, errors, suggestReauth } = await updateCustomerProfile(session.accessToken, {
     firstName,
     lastName: body.lastName,
+    email: body.email,
   });
 
   if (errors.length || !customer) {
     return NextResponse.json(
-      { error: errors[0] ?? "Profile could not be updated." },
+      { error: friendlyAuthError(errors[0] ?? "Profile could not be updated.") },
       { status: 422 }
     );
   }
 
-  return NextResponse.json({ customer });
+  if (suggestReauth) {
+    clearCustomerSession();
+  }
+
+  return NextResponse.json({
+    customer,
+    suggestReauth: suggestReauth ?? false,
+    message: suggestReauth
+      ? "Your email was updated. Sign in with your new address to continue."
+      : undefined,
+  });
 }
