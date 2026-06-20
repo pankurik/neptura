@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchCustomerPreferences, updateCustomerPreferences } from "@/lib/customer-auth/preferences";
 import { sanitizeJewelryPreferences } from "@/lib/customer-auth/jewelry-preferences";
-import { requireCustomerSession } from "@/lib/customer-auth/require-session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 
 type PreferencesBody = {
   birthday?: string | null;
@@ -14,10 +17,7 @@ export async function POST(request: NextRequest) {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: PreferencesBody;
@@ -49,10 +49,7 @@ export async function GET() {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   const preferences = await fetchCustomerPreferences(session.customer.id);
