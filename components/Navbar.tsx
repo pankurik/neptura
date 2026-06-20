@@ -13,6 +13,7 @@ import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 const SCROLL_RANGE = 128;
 const EXPANDED_BLOCK_HEIGHT = 132;
+const WISHLIST_PATH = "/account/wishlist";
 
 function smoothstep(t: number) {
   return t * t * (3 - 2 * t);
@@ -28,11 +29,6 @@ const MAIN_NAV_LINKS = [
   { label: "Origin", href: "/#origin", hasMenu: false },
   { label: "Science", href: "/#science", hasMenu: false },
   { label: "Bespoke", href: "/bespoke", hasMenu: false },
-];
-
-const UTILITY_RIGHT = [
-  { label: "Sign in", href: "/login", icon: "account" as const },
-  { label: "Wishlist", href: "/account#wishlist", icon: "wishlist" as const },
 ];
 
 const COLLECTION_LINKS = [
@@ -114,7 +110,7 @@ function WishlistIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0">
       <path
-        d="M8 13.5L3.5 9C2 7.5 2 5.2 3.6 3.6C5.2 2 7.5 2 9 3.5L8 4.5L7 3.5C5.5 2 3.2 2 1.6 3.6C0 5.2 0 7.5 1.5 9L8 13.5Z"
+        d="M8 13.5C8 13.5 2.5 9.25 2.5 6C2.5 4 4 2.75 5.75 2.75C7 2.75 8 3.75 8 3.75C8 3.75 9 2.75 10.25 2.75C12 2.75 13.5 4 13.5 6C13.5 9.25 8 13.5 8 13.5Z"
         stroke="currentColor"
         strokeWidth="0.75"
         strokeLinejoin="round"
@@ -175,6 +171,134 @@ function NavLink({
   );
 }
 
+function WishlistNavLink({
+  customer,
+  loginHref,
+  className,
+  showLabel = true,
+  onClick,
+  onMouseEnter,
+}: {
+  customer: CustomerSummary | null;
+  loginHref: string;
+  className: string;
+  showLabel?: boolean;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+}) {
+  const wishlistCount = customer?.wishlistHandles.length ?? 0;
+  const wishlistHref = customer
+    ? WISHLIST_PATH
+    : `/login?returnTo=${encodeURIComponent(WISHLIST_PATH)}`;
+
+  return (
+    <Link
+      href={wishlistHref}
+      className={`relative ${className}${showLabel ? " inline-flex items-center gap-1.5" : ""}`}
+      aria-label={wishlistCount > 0 ? `Wishlist (${wishlistCount} items)` : "Wishlist"}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+    >
+      <WishlistIcon />
+      {showLabel && (
+        <>
+          Wishlist
+          {wishlistCount > 0 && <span>({wishlistCount})</span>}
+        </>
+      )}
+      {!showLabel && wishlistCount > 0 && (
+        <span
+          className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center bg-neptura-aurora px-0.5 text-[0.5rem] font-medium leading-none text-neptura-diamond"
+          aria-hidden
+        >
+          {wishlistCount > 9 ? "9+" : wishlistCount}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function AccountNavLink({
+  customer,
+  loginHref,
+  className,
+  avatarVariant,
+  onClick,
+  onMouseEnter,
+}: {
+  customer: CustomerSummary | null;
+  loginHref: string;
+  className: string;
+  avatarVariant?: "light" | "dark";
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+}) {
+  if (customer) {
+    return (
+      <Link
+        href="/account"
+        className={`${className} inline-flex items-center gap-1.5`}
+        aria-label="Your account"
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+      >
+        <CustomerAvatar
+          customer={customer}
+          size={avatarVariant ? "sm" : undefined}
+          showName={!avatarVariant}
+          shape="circle"
+          variant={avatarVariant}
+        />
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={loginHref}
+      className={`${className} inline-flex items-center gap-1.5`}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+    >
+      <AccountIcon />
+      Sign in
+    </Link>
+  );
+}
+
+function UtilityAccountWishlistLinks({
+  customer,
+  loginHref,
+  utilityClassName,
+  onClick,
+  onMouseEnter,
+}: {
+  customer: CustomerSummary | null;
+  loginHref: string;
+  utilityClassName: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+}) {
+  return (
+    <>
+      <WishlistNavLink
+        customer={customer}
+        loginHref={loginHref}
+        className={utilityClassName}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+      />
+      <AccountNavLink
+        customer={customer}
+        loginHref={loginHref}
+        className={utilityClassName}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+      />
+    </>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -202,6 +326,8 @@ export default function Navbar() {
   const compactLogoOpacity = rangeMap(layoutPhase, 0.35, 0.85, 0, 1);
   const isLightNav = surfacePhase > 0.45 || overlayOpen || !isHome;
   const useAdaptiveNav = isHome && surfacePhase < 1 && !overlayOpen;
+  const onHero = isHome && layoutPhase < 0.55;
+  const showCompactUtilityLinks = !onHero;
 
   useEffect(() => {
     if (!isHome) {
@@ -305,6 +431,7 @@ export default function Navbar() {
     : "";
 
   const nav = navClasses(isLightNav, useAdaptiveNav);
+  const avatarVariant = isLightNav && !useAdaptiveNav ? "light" : "dark";
   const headerStyle = {
     "--nav-phase": surfacePhase,
   } as React.CSSProperties;
@@ -370,9 +497,27 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-1">
+            {showCompactUtilityLinks && (
+              <WishlistNavLink
+                customer={customer}
+                loginHref={loginHref}
+                className={nav.icon}
+                showLabel={false}
+                onClick={closeAll}
+              />
+            )}
             <button type="button" className={nav.icon} aria-label="Search">
               <SearchIcon />
             </button>
+            {showCompactUtilityLinks && (
+              <AccountNavLink
+                customer={customer}
+                loginHref={loginHref}
+                className={nav.icon}
+                avatarVariant={avatarVariant}
+                onClick={closeAll}
+              />
+            )}
             <button
               type="button"
               onClick={() => {
@@ -401,42 +546,31 @@ export default function Navbar() {
               pointerEvents: layoutPhase > 0.82 ? "none" : "auto",
             }}
           >
-            <div
-              className="flex items-center justify-end py-2"
-              style={{ borderBottom: nav.tierDivider }}
-            >
-              <div className="flex items-center gap-1">
-                {UTILITY_RIGHT.map((item) =>
-                  item.icon === "wishlist" ? (
-                    <Link
-                      key={item.label}
-                      href={customer ? item.href : loginHref}
-                      className={`${nav.utility} inline-flex items-center gap-1.5`}
-                      aria-label="Wishlist"
-                    >
-                      <WishlistIcon />
-                      {item.label}
-                      {customer && customer.wishlistHandles.length > 0 && (
-                        <span>({customer.wishlistHandles.length})</span>
-                      )}
-                    </Link>
-                  ) : customer ? (
-                    <Link
-                      key={item.label}
-                      href="/account"
-                      className={`${nav.utility} inline-flex items-center gap-1.5`}
-                    >
-                      <CustomerAvatar customer={customer} showName shape="circle" />
-                    </Link>
-                  ) : (
-                    <Link key={item.label} href={loginHref} className={`${nav.utility} inline-flex items-center gap-1.5`}>
-                      <AccountIcon />
-                      {item.label}
-                    </Link>
-                  )
-                )}
+            {onHero && (
+              <div
+                className="relative flex items-center justify-end py-2"
+                style={{ borderBottom: nav.tierDivider }}
+              >
+                <p
+                  className={`pointer-events-none absolute inset-x-0 text-center font-display text-[0.85rem] font-light tracking-[0.18em] whitespace-nowrap ${
+                    useAdaptiveNav
+                      ? "nav-utility-adaptive"
+                      : isLightNav
+                        ? "text-neptura-light-muted"
+                        : "text-neptura-crystal/85"
+                  }`}
+                >
+                  No mine. No conflict. No compromise.
+                </p>
+                <div className="relative z-10 flex shrink-0 items-center gap-1">
+                  <UtilityAccountWishlistLinks
+                    customer={customer}
+                    loginHref={loginHref}
+                    utilityClassName={nav.utility}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex justify-center pb-2 pt-3 md:pb-3 md:pt-4">
               <Link href="/" onClick={closeAll} className="hover:opacity-80">
@@ -468,7 +602,7 @@ export default function Navbar() {
             </Link>
 
             <nav
-              className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-x-1 gap-y-1"
+              className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-x-10 gap-y-1"
               aria-label="Primary"
             >
               {MAIN_NAV_LINKS.map((item) => (
@@ -497,9 +631,20 @@ export default function Navbar() {
               className="ml-auto flex shrink-0 items-center gap-1 pl-8"
               style={{
                 borderLeft:
-                  layoutPhase < 0.2 && expandedOpacity > 0.05 ? nav.iconDivider : "none",
+                  (onHero && layoutPhase < 0.2 && expandedOpacity > 0.05) || showCompactUtilityLinks
+                    ? nav.iconDivider
+                    : "none",
               }}
             >
+              {showCompactUtilityLinks && (
+                <WishlistNavLink
+                  customer={customer}
+                  loginHref={loginHref}
+                  className={nav.utility}
+                  onClick={closeAll}
+                  onMouseEnter={closeMenuImmediately}
+                />
+              )}
               <button
                 type="button"
                 className={nav.icon}
@@ -508,6 +653,16 @@ export default function Navbar() {
               >
                 <SearchIcon />
               </button>
+              {showCompactUtilityLinks && (
+                <AccountNavLink
+                  customer={customer}
+                  loginHref={loginHref}
+                  className={nav.utility}
+                  avatarVariant={avatarVariant}
+                  onClick={closeAll}
+                  onMouseEnter={closeMenuImmediately}
+                />
+              )}
               <button
                 type="button"
                 onClick={() => {
