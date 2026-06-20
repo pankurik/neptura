@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/components/ProductDetailClient";
+import { getCustomerSession } from "@/lib/customer-auth/require-session";
 import { getProduct } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +19,16 @@ export async function generateMetadata({ params }: ProductPageProps) {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.handle);
+  const [product, customer] = await Promise.all([
+    getProduct(params.handle),
+    getCustomerSession(),
+  ]);
 
   if (!product) {
     notFound();
   }
 
-  return <ProductDetailClient product={product} />;
+  const isWishlisted = customer?.wishlistHandles.includes(product.handle) ?? false;
+
+  return <ProductDetailClient product={product} isWishlisted={isWishlisted} />;
 }
