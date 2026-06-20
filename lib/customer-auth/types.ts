@@ -65,9 +65,13 @@ export type OrderSummary = {
   name: string;
   processedAt: string;
   fulfillmentStatus: string;
+  /** Latest carrier/shipment status from fulfillments, when available */
+  latestShipmentStatus: string | null;
   financialStatus: string | null;
   totalPrice: { amount: string; currencyCode: string };
   statusPageUrl: string;
+  /** Sum of line item quantities across the full order */
+  totalItemCount: number;
   lineItems: OrderLineItemSummary[];
 };
 
