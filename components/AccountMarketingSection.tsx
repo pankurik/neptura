@@ -19,10 +19,12 @@ import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 type AccountMarketingSectionProps = {
   customer: CustomerSummary;
+  embedded?: boolean;
 };
 
 type MarketingToggleProps = {
   title: string;
+  description: string;
   detail: string | null;
   status: string;
   checked: boolean;
@@ -32,6 +34,7 @@ type MarketingToggleProps = {
 
 function MarketingToggle({
   title,
+  description,
   detail,
   status,
   checked,
@@ -43,8 +46,11 @@ function MarketingToggle({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[0.82rem] font-light text-neptura-light-text">{title}</p>
+          <p className="mt-1 text-[0.75rem] font-light leading-relaxed text-neptura-light-muted">
+            {description}
+          </p>
           {detail && (
-            <p className="mt-1 text-[0.75rem] font-light text-neptura-light-muted">{detail}</p>
+            <p className="mt-2 text-[0.72rem] font-light text-neptura-light-muted">{detail}</p>
           )}
           <p className="mt-2 text-[0.72rem] font-light text-neptura-light-muted">{status}</p>
         </div>
@@ -66,7 +72,10 @@ function MarketingToggle({
   );
 }
 
-export default function AccountMarketingSection({ customer }: AccountMarketingSectionProps) {
+export default function AccountMarketingSection({
+  customer,
+  embedded = false,
+}: AccountMarketingSectionProps) {
   const router = useRouter();
   const displayPhone = getCustomerDisplayPhone(customer);
   const [emailSubscribed, setEmailSubscribed] = useState(() =>
@@ -110,16 +119,39 @@ export default function AccountMarketingSection({ customer }: AccountMarketingSe
     }
   }
 
+  const wrapperClass = embedded
+    ? "border border-neptura-light bg-neptura-light-bg p-6 sm:p-8"
+    : `mt-10 ${accountSectionClassName}`;
+
+  const formattedPhone = displayPhone ? formatPhoneDisplay(displayPhone) : null;
+
   return (
-    <div className={`mt-10 ${accountSectionClassName}`}>
+    <div className={wrapperClass}>
       <p className={accountSectionLabelClassName}>Communications</p>
       <p className="mt-2 text-[0.78rem] font-light leading-[1.8] text-neptura-light-muted">
-        Hear about new collections, launches, and Neptura stories.
+        Choose how Neptura reaches you.
       </p>
+
+      {(customer.email || formattedPhone) && (
+        <p className="mt-3 text-[0.72rem] font-light leading-relaxed text-neptura-light-muted">
+          We&apos;ll reach you at{" "}
+          {customer.email && <span>{customer.email}</span>}
+          {customer.email && formattedPhone && <span> · </span>}
+          {formattedPhone ? (
+            <span>{formattedPhone}</span>
+          ) : (
+            !customer.email && <span>your saved contact details</span>
+          )}
+          {!formattedPhone && customer.email && (
+            <span className="text-neptura-light-muted/80"> · add a phone above for SMS</span>
+          )}
+        </p>
+      )}
 
       <div className="mt-6 space-y-4">
         <MarketingToggle
-          title="Email updates"
+          title="Collection launches"
+          description="New pieces, stories, and arrivals in your universe."
           detail={customer.email}
           status={formatEmailMarketingState(customer.emailMarketingState)}
           checked={emailSubscribed}
@@ -128,14 +160,15 @@ export default function AccountMarketingSection({ customer }: AccountMarketingSe
         />
 
         <MarketingToggle
-          title="SMS updates"
+          title="Bespoke follow-ups"
+          description="Personal notes from our atelier when a commission is in progress."
           detail={
-            displayPhone
-              ? (formatPhoneDisplay(displayPhone) ?? displayPhone)
-              : "Add a phone number above to enable SMS updates."
+            formattedPhone
+              ? formattedPhone
+              : "Add a phone number above to enable SMS follow-ups."
           }
           status={
-            displayPhone
+            formattedPhone
               ? formatSmsMarketingState(customer.smsMarketingState)
               : "Phone number required"
           }
@@ -143,6 +176,13 @@ export default function AccountMarketingSection({ customer }: AccountMarketingSe
           disabled={!displayPhone || submittingChannel === "sms"}
           onChange={(value) => handleToggle("sms", value)}
         />
+
+        <div className="border border-neptura-light bg-neptura-light-bg px-5 py-4">
+          <p className="text-[0.82rem] font-light text-neptura-light-text">Order & delivery</p>
+          <p className="mt-1 text-[0.75rem] font-light leading-relaxed text-neptura-light-muted">
+            Order confirmations and delivery updates are always sent to your email.
+          </p>
+        </div>
       </div>
 
       {error && (
