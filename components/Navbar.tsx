@@ -18,13 +18,13 @@ const RIGHT_LINKS = [
 ];
 
 const linkClassName =
-  "text-[0.62rem] font-light uppercase tracking-[0.16em] text-[rgba(168,197,218,0.55)] transition-colors duration-300 hover:text-[rgba(232,244,248,0.9)]";
+  "text-[0.72rem] font-light uppercase tracking-[0.16em] text-[rgba(168,197,218,0.85)] transition-colors duration-300 hover:text-neptura-crystal";
 
 const activeLinkClassName =
-  "text-[0.62rem] font-light uppercase tracking-[0.16em] text-neptura-aurora transition-colors duration-300";
+  "text-[0.72rem] font-light uppercase tracking-[0.16em] text-neptura-aurora transition-colors duration-300";
 
 const iconClassName =
-  "text-[rgba(168,197,218,0.55)] transition-colors duration-300 hover:text-[rgba(232,244,248,0.9)]";
+  "text-[rgba(168,197,218,0.85)] transition-colors duration-300 hover:text-neptura-crystal";
 
 function SearchIcon() {
   return (
@@ -180,8 +180,8 @@ export default function Navbar() {
           backdropFilter: scrolled || activeMenu ? "blur(20px)" : "none",
           WebkitBackdropFilter: scrolled || activeMenu ? "blur(20px)" : "none",
           borderBottom: scrolled || activeMenu
-            ? "0.5px solid rgba(168, 197, 218, 0.08)"
-            : "0.5px solid transparent",
+            ? "0.5px solid rgba(168, 197, 218, 0.15)"
+            : "0.5px solid rgba(168, 197, 218, 0.08)",
         }}
         onMouseLeave={handleMouseLeaveMenu}
       >
@@ -191,13 +191,23 @@ export default function Navbar() {
               <div
                 key={item.label}
                 onMouseEnter={() => item.hasMenu ? handleMouseEnterMenu("collections") : closeMenuImmediately()}
-                className="py-1"
+                className="relative py-1 group"
               >
                 <Link
                   href={item.href}
                   className={activeMenu === "collections" && item.hasMenu ? activeLinkClassName : linkClassName}
                 >
-                  {item.label}
+                  <span className="relative pb-1">
+                    {item.label}
+                    <span
+                      className={`absolute bottom-0 left-0 h-[1.5px] bg-neptura-aurora transition-transform duration-300 ease-out origin-left ${
+                        activeMenu === "collections" && item.hasMenu
+                          ? "scale-x-100"
+                          : "scale-x-0 group-hover:scale-x-100"
+                      }`}
+                      style={{ width: "100%" }}
+                    />
+                  </span>
                 </Link>
               </div>
             ))}
@@ -217,10 +227,16 @@ export default function Navbar() {
                 <div
                   key={item.label}
                   onMouseEnter={closeMenuImmediately}
-                  className="py-1"
+                  className="relative py-1 group"
                 >
                   <Link href={item.href} className={linkClassName}>
-                    {item.label}
+                    <span className="relative pb-1">
+                      {item.label}
+                      <span
+                        className="absolute bottom-0 left-0 h-[1.5px] bg-neptura-aurora transition-transform duration-300 ease-out origin-left scale-x-0 group-hover:scale-x-100"
+                        style={{ width: "100%" }}
+                      />
+                    </span>
                   </Link>
                 </div>
               ))}
