@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import AccountAddressesSection from "@/components/AccountAddressesSection";
+import AccountMarketingSection from "@/components/AccountMarketingSection";
+import AccountPhoneSection from "@/components/AccountPhoneSection";
+import AccountProfileSection from "@/components/AccountProfileSection";
 import CustomerAvatar from "@/components/CustomerAvatar";
-import { getCustomerSession } from "@/lib/customer-auth/session";
+import OrderHistory from "@/components/OrderHistory";
+import { fetchCustomerProfile, isProfileComplete } from "@/lib/customer-auth/customer";
+import { fetchCustomerOrders } from "@/lib/customer-auth/orders";
+import { getCustomerAccessToken } from "@/lib/customer-auth/session";
 
 export const metadata = {
   title: "Your account | Neptura",
@@ -9,11 +16,22 @@ export const metadata = {
 };
 
 export default async function AccountPage() {
-  const customer = await getCustomerSession();
+  const accessToken = await getCustomerAccessToken();
+
+  if (!accessToken) {
+    redirect("/login?returnTo=/account");
+  }
+
+  const [customer, orders] = await Promise.all([
+    fetchCustomerProfile(accessToken),
+    fetchCustomerOrders(accessToken),
+  ]);
 
   if (!customer) {
     redirect("/login?returnTo=/account");
   }
+
+  const profileComplete = isProfileComplete(customer);
 
   return (
     <div className="min-h-screen bg-neptura-light-bg pt-28 pb-24">
@@ -35,24 +53,42 @@ export default async function AccountPage() {
           </div>
         </div>
 
-        <div className="mt-10 space-y-6">
-          <p className="text-[0.8rem] font-light leading-[1.8] text-neptura-light-muted">
-            Your profile and order history are managed through your Neptura account. More account
-            features will appear here as we expand the experience.
-          </p>
-
-          <Link href="/shop" className="btn-light-secondary inline-block">
-            Continue shopping
-          </Link>
-
-          <div className="pt-4">
+        {!profileComplete && (
+          <div className="mt-8 border border-neptura-light bg-neptura-light-surface/40 px-6 py-5">
+            <p className="text-[0.8rem] font-light leading-[1.8] text-neptura-light-muted">
+              Complete your profile so we can address you by name across Neptura.
+            </p>
             <Link
-              href="/api/auth/logout?returnTo=/"
-              className="text-[0.72rem] uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-aurora"
+              href="/account/setup?returnTo=/account"
+              className="btn-light-primary mt-5 inline-block"
             >
-              Sign out
+              Complete profile
             </Link>
           </div>
+        )}
+
+        <AccountProfileSection customer={customer} />
+
+        <AccountPhoneSection customer={customer} />
+
+        <AccountAddressesSection customer={customer} />
+
+        <AccountMarketingSection customer={customer} />
+
+        <div className="mt-10">
+          <OrderHistory orders={orders} />
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Link href="/shop" className="btn-light-secondary inline-block text-center">
+            Continue shopping
+          </Link>
+          <Link
+            href="/api/auth/logout?returnTo=/login"
+            className="text-center text-[0.72rem] uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-aurora sm:text-right"
+          >
+            Sign out
+          </Link>
         </div>
       </div>
     </div>
