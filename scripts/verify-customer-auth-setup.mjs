@@ -151,6 +151,14 @@ async function main() {
         console.log("  Fix: Dev Dashboard → your app → Versions → Access → add read_customers + write_customers");
         console.log("       → Release → reinstall app on store → restart dev server\n");
       }
+
+      if (scopes.includes("write_files")) {
+        ok("Admin API write_files scope present (profile photo uploads)");
+      } else {
+        warn("Missing Admin API write_files scope — profile photo upload will not work");
+        console.log("  Fix: Dev Dashboard → your app → Versions → Access → add write_files");
+        console.log("       → Release → reinstall app on store → restart dev server\n");
+      }
     } catch {
       warn("Could not verify Admin API scopes for phone updates");
     }
