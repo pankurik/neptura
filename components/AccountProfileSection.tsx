@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CustomerSummary } from "@/lib/customer-auth/types";
+import { getCustomerFullName } from "@/lib/customer-auth/display";
 import AccountProfileForm from "./AccountProfileForm";
 
 type AccountProfileSectionProps = {
@@ -17,6 +18,8 @@ export default function AccountProfileSection({
   const wrapperClass = embedded
     ? "border border-neptura-light bg-neptura-light-bg p-6 sm:p-8"
     : "mt-10 border border-neptura-light bg-neptura-light-bg p-6 sm:p-8";
+
+  const fullName = getCustomerFullName(customer);
 
   if (isEditing) {
     return (
@@ -49,13 +52,11 @@ export default function AccountProfileSection({
           <p className="text-[0.68rem] font-normal uppercase tracking-[0.16em] text-neptura-aurora">
             Profile
           </p>
-          <p className="mt-3 font-display text-xl font-light text-neptura-light-text">
-            {[customer.firstName, customer.lastName].filter(Boolean).join(" ") ||
-              customer.displayName ||
-              "Your profile"}
-          </p>
+          {fullName && (
+            <p className="mt-3 font-display text-xl font-light text-neptura-light-text">{fullName}</p>
+          )}
           {customer.email && (
-            <p className="mt-1 text-[0.8rem] font-light text-neptura-light-muted">
+            <p className={`text-[0.8rem] font-light text-neptura-light-muted ${fullName ? "mt-1" : "mt-3"}`}>
               {customer.email}
             </p>
           )}
