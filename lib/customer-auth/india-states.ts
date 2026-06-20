@@ -1,0 +1,42 @@
+export const INDIA_STATES = [
+  { code: "AN", name: "Andaman and Nicobar Islands" },
+  { code: "AP", name: "Andhra Pradesh" },
+  { code: "AR", name: "Arunachal Pradesh" },
+  { code: "AS", name: "Assam" },
+  { code: "BR", name: "Bihar" },
+  { code: "CH", name: "Chandigarh" },
+  { code: "CT", name: "Chhattisgarh" },
+  { code: "DL", name: "Delhi" },
+  { code: "GA", name: "Goa" },
+  { code: "GJ", name: "Gujarat" },
+  { code: "HP", name: "Himachal Pradesh" },
+  { code: "HR", name: "Haryana" },
+  { code: "JH", name: "Jharkhand" },
+  { code: "JK", name: "Jammu and Kashmir" },
+  { code: "KA", name: "Karnataka" },
+  { code: "KL", name: "Kerala" },
+  { code: "LA", name: "Ladakh" },
+  { code: "LD", name: "Lakshadweep" },
+  { code: "MH", name: "Maharashtra" },
+  { code: "ML", name: "Meghalaya" },
+  { code: "MN", name: "Manipur" },
+  { code: "MP", name: "Madhya Pradesh" },
+  { code: "MZ", name: "Mizoram" },
+  { code: "NL", name: "Nagaland" },
+  { code: "OR", name: "Odisha" },
+  { code: "PB", name: "Punjab" },
+  { code: "PY", name: "Puducherry" },
+  { code: "RJ", name: "Rajasthan" },
+  { code: "SK", name: "Sikkim" },
+  { code: "TG", name: "Telangana" },
+  { code: "TN", name: "Tamil Nadu" },
+  { code: "TR", name: "Tripura" },
+  { code: "UP", name: "Uttar Pradesh" },
+  { code: "UT", name: "Uttarakhand" },
+  { code: "WB", name: "West Bengal" },
+] as const;
+
+export function getIndiaStateName(code: string | null | undefined): string | null {
+  if (!code) return null;
+  return INDIA_STATES.find((state) => state.code === code)?.name ?? code;
+}
