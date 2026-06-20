@@ -153,7 +153,7 @@ export async function fetchCustomerProfile(
   };
 }
 
-export { formatMemberSince, getCustomerDisplayLabel, getCustomerInitials, getCustomerAvatarUrl, isProfileComplete } from "./display";
+export { formatMemberSince, getCustomerDisplayLabel, getCustomerFullName, getCustomerInitials, getCustomerAvatarUrl, isProfileComplete } from "./display";
 
 const CUSTOMER_UPDATE_MUTATION = `#graphql
   mutation CustomerUpdate($input: CustomerUpdateInput!) {
