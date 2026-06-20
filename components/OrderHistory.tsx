@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatFulfillmentStatus, formatOrderDate } from "@/lib/customer-auth/orders";
+import { formatOrderDate, formatOrderStatusLabel } from "@/lib/customer-auth/orders";
 import type { OrderSummary } from "@/lib/customer-auth/types";
 import { formatPrice } from "@/lib/shopify";
 
@@ -50,7 +50,7 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
                 </p>
                 <p className="mt-1 text-[0.72rem] font-light text-neptura-light-muted">
                   {formatOrderDate(order.processedAt)} ·{" "}
-                  {formatFulfillmentStatus(order.fulfillmentStatus)}
+                  {formatOrderStatusLabel(order)}
                 </p>
               </div>
               <p className="font-display text-lg font-light text-neptura-light-text">
