@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Shop | Neptura",
-  description: "Browse our collection of ocean-inspired essentials.",
+  description: "Browse our collection of fine jewellery.",
 };
 
 export default async function ShopPage() {
@@ -14,16 +14,16 @@ export default async function ShopPage() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-12">
       <div className="mb-12 text-center">
-        <h1 className="text-3xl font-light tracking-tight text-neptura-navy md:text-4xl">
+        <h1 className="font-serif text-3xl font-light text-neptura-navy md:text-4xl">
           Shop
         </h1>
-        <p className="mt-3 text-neptura-ocean/70">
-          {products.length} {products.length === 1 ? "product" : "products"}
+        <p className="mt-3 text-neptura-navy/50">
+          {products.length} {products.length === 1 ? "piece" : "pieces"}
         </p>
       </div>
 
       {products.length === 0 ? (
-        <p className="text-center text-neptura-ocean/60">
+        <p className="text-center text-neptura-navy/50">
           No products found. Check your Shopify store configuration.
         </p>
       ) : (
