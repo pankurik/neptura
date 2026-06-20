@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { friendlyAuthError } from "@/lib/customer-auth/auth-errors";
 import { updateCustomerProfile } from "@/lib/customer-auth/customer";
-import { requireCustomerSession } from "@/lib/customer-auth/require-session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 import { clearCustomerSession } from "@/lib/customer-auth/session";
 
 type ProfileBody = {
@@ -14,10 +17,7 @@ export async function POST(request: NextRequest) {
   const session = await requireCustomerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Your session expired. Please sign in again." },
-      { status: 401 }
-    );
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: ProfileBody;
