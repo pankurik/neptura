@@ -12,7 +12,7 @@ export default async function ShopPage() {
   const products = await getProducts();
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12">
+    <div className="mx-auto max-w-7xl px-6 pb-12 pt-28">
       <div className="mb-12 text-center">
         <h1 className="font-serif text-3xl font-light text-neptura-navy md:text-4xl">
           Shop

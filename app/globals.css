@@ -3,17 +3,241 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8f5f0;
-  --foreground: #0d1f2d;
+  /* Dark world */
+  --neptura-void: #000008;
+  --neptura-deep: #050a1a;
+  --neptura-neptune: #0a1628;
+  --neptura-aurora: #4a90a4;
+  --neptura-ice: #a8c5da;
+  --neptura-silver: #c8d8e8;
+  --neptura-crystal: #e8f4f8;
+  --neptura-diamond: #f0f8ff;
+  --neptura-violet: #6b5b9e;
+
+  /* Light world */
+  --neptura-light-bg: #f4f8fb;
+  --neptura-light-surface: #ebf3f8;
+  --neptura-light-border: rgba(74, 144, 164, 0.12);
+  --neptura-light-text: #0a1628;
+  --neptura-light-muted: #4a7a8a;
+
+  /* Navigation */
+  --neptura-nav-bg: rgba(0, 0, 8, 0.8);
+  --neptura-nav-border: rgba(168, 197, 218, 0.08);
+  --neptura-btn-ghost-border: rgba(232, 244, 248, 0.25);
+
+  /* Overlays */
+  --neptura-card-hover-overlay: rgba(10, 22, 40, 0.45);
+
+  /* Typography scale */
+  --neptura-text-hero: clamp(2.8rem, 6vw, 5.2rem);
+  --neptura-text-section: clamp(1.6rem, 3vw, 2.4rem);
+  --neptura-text-pdp-title: clamp(1.4rem, 2.5vw, 2rem);
+  --neptura-text-price: 1.6rem;
+  --neptura-text-product: 1.05rem;
+  --neptura-text-body: 0.85rem;
+  --neptura-text-nav: 0.7rem;
+  --neptura-text-button: 0.72rem;
+  --neptura-text-meta: 0.68rem;
+  --neptura-text-label: 0.65rem;
+  --neptura-text-detail: 0.75rem;
+
+  /* Animation */
+  --neptura-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --neptura-hero-duration: 2.5s;
+  --neptura-hero-duration-mobile: 1.5s;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --neptura-hero-duration: 0.01ms;
+    --neptura-hero-duration-mobile: 0.01ms;
+  }
+}
+
+@layer base {
+  body {
+    color: var(--neptura-light-text);
+    background: var(--neptura-light-bg);
+    font-weight: 300;
+    line-height: 1.9;
+  }
+}
+
+@layer components {
+  .world-dark {
+    color: var(--neptura-silver);
+    background: var(--neptura-void);
+  }
+
+  .world-light {
+    color: var(--neptura-light-text);
+    background: var(--neptura-light-bg);
+  }
+
+  .btn-dark-primary {
+    background: var(--neptura-crystal);
+    color: var(--neptura-void);
+    padding: 0.8rem 2rem;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: var(--neptura-text-button);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .btn-dark-ghost {
+    background: transparent;
+    border: 0.5px solid var(--neptura-btn-ghost-border);
+    color: var(--neptura-crystal);
+    padding: 0.8rem 2rem;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: var(--neptura-text-button);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .btn-light-primary {
+    background: var(--neptura-light-text);
+    color: var(--neptura-light-bg);
+    padding: 0.8rem 2rem;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: var(--neptura-text-button);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .btn-light-secondary {
+    background: transparent;
+    border: 0.5px solid var(--neptura-light-border);
+    color: var(--neptura-light-text);
+    padding: 0.8rem 2rem;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: var(--neptura-text-button);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .section-label {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: var(--neptura-text-label);
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--neptura-aurora);
+  }
+
+  .transition-band {
+    background: linear-gradient(
+      to bottom,
+      var(--neptura-void) 0%,
+      var(--neptura-deep) 40%,
+      var(--neptura-light-bg) 100%
+    );
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@keyframes neptura-twinkle {
+  0%,
+  100% {
+    opacity: var(--star-min);
+  }
+  50% {
+    opacity: var(--star-max);
+  }
+}
+
+@keyframes neptura-diamond-enter {
+  0% {
+    transform: scale(0.2) rotate(-20deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.04) rotate(1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes neptura-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+    border-color: rgba(168, 197, 218, 0.35);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.15;
+    border-color: rgba(168, 197, 218, 0.08);
+  }
+  100% {
+    transform: scale(0.85);
+    opacity: 0.5;
+    border-color: rgba(168, 197, 218, 0.35);
+  }
+}
+
+@keyframes neptura-particle-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(var(--particle-x), var(--particle-y)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes neptura-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neptura-scroll-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-neptura-twinkle,
+  .animate-neptura-diamond-enter,
+  .animate-neptura-pulse-ring,
+  .animate-neptura-particle-drift,
+  .animate-neptura-fade-up,
+  .animate-neptura-scroll-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .animate-neptura-diamond-enter {
+    animation-duration: var(--neptura-hero-duration-mobile);
   }
 }
