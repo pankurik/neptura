@@ -11,6 +11,8 @@ type AccountWishlistGridProps = {
   products: Product[];
 };
 
+export const WISHLIST_PREVIEW_LIMIT = 5;
+
 export default function AccountWishlistGrid({ products }: AccountWishlistGridProps) {
   const router = useRouter();
   const [removingHandle, setRemovingHandle] = useState<string | null>(null);
