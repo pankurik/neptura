@@ -10,15 +10,14 @@ const config: Config = {
     extend: {
       colors: {
         neptura: {
-          navy: "#0a1628",
-          ocean: "#1a3a5c",
-          seafoam: "#7ec8c8",
-          sand: "#f5f0e8",
+          navy: "#0D1F2D",
+          pearl: "#F8F5F0",
+          rose: "#C9967A",
         },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        serif: ["var(--font-geist-mono)", "Georgia", "serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        serif: ["var(--font-cormorant)", "Georgia", "serif"],
       },
     },
   },
