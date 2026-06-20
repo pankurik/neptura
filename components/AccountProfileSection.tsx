@@ -8,13 +8,17 @@ import AccountProfileForm from "./AccountProfileForm";
 type AccountProfileSectionProps = {
   customer: CustomerSummary;
   embedded?: boolean;
+  defaultEditing?: boolean;
+  profileRedirectTo?: string;
 };
 
 export default function AccountProfileSection({
   customer,
   embedded = false,
+  defaultEditing = false,
+  profileRedirectTo,
 }: AccountProfileSectionProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(defaultEditing);
   const wrapperClass = embedded
     ? "border border-neptura-light bg-neptura-light-bg p-6 sm:p-8"
     : "mt-10 border border-neptura-light bg-neptura-light-bg p-6 sm:p-8";
@@ -26,19 +30,22 @@ export default function AccountProfileSection({
       <div className={wrapperClass}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <p className="text-[0.68rem] font-normal uppercase tracking-[0.16em] text-neptura-aurora">
-            Edit profile
+            {defaultEditing ? "Your profile" : "Edit profile"}
           </p>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="text-[0.68rem] font-light uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-aurora"
-          >
-            Cancel
-          </button>
+          {!defaultEditing && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="text-[0.68rem] font-light uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-aurora"
+            >
+              Cancel
+            </button>
+          )}
         </div>
         <AccountProfileForm
           customer={customer}
-          submitLabel="Save changes"
+          submitLabel={defaultEditing ? "Save and continue" : "Save changes"}
+          redirectTo={profileRedirectTo}
           onSaved={() => setIsEditing(false)}
         />
       </div>

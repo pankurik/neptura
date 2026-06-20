@@ -9,12 +9,15 @@ import { saveCustomerSession } from "@/lib/customer-auth/session";
 import { exchangeAuthorizationCode } from "@/lib/customer-auth/tokens";
 
 async function buildPostAuthRedirect(returnTo: string, accessToken: string): Promise<string> {
-  const setupPath = `/account/setup?returnTo=${encodeURIComponent(returnTo)}`;
-
   try {
     const customer = await fetchCustomerProfile(accessToken);
     if (customer && !isProfileComplete(customer)) {
-      return setupPath;
+      const params = new URLSearchParams();
+      if (returnTo !== "/") {
+        params.set("returnTo", returnTo);
+      }
+      const query = params.toString();
+      return query ? `/account?${query}` : "/account";
     }
     return returnTo;
   } catch {

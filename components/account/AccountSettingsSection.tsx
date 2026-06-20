@@ -8,9 +8,15 @@ import type { CustomerSummary } from "@/lib/customer-auth/types";
 
 type AccountSettingsSectionProps = {
   customer: CustomerSummary;
+  openProfileEditor?: boolean;
+  profileRedirectTo?: string;
 };
 
-export default function AccountSettingsSection({ customer }: AccountSettingsSectionProps) {
+export default function AccountSettingsSection({
+  customer,
+  openProfileEditor = false,
+  profileRedirectTo,
+}: AccountSettingsSectionProps) {
   return (
     <section aria-labelledby="account-settings-title">
       <AccountSectionHeader
@@ -22,7 +28,12 @@ export default function AccountSettingsSection({ customer }: AccountSettingsSect
 
       <div className="mt-8 space-y-5">
         <AccountAvatarSection customer={customer} embedded />
-        <AccountProfileSection customer={customer} embedded />
+        <AccountProfileSection
+          customer={customer}
+          embedded
+          defaultEditing={openProfileEditor}
+          profileRedirectTo={profileRedirectTo}
+        />
         <AccountPhoneSection customer={customer} embedded />
         <AccountPreferencesSection customer={customer} embedded />
         <AccountMarketingSection customer={customer} embedded />
