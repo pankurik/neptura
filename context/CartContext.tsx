@@ -8,77 +8,86 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { Cart } from "@/lib/queries";
+import type { Cart, CartContextValue } from "@/lib/types";
 
 const CART_ID_KEY = "neptura-cart-id";
 
-interface CartContextValue {
-  cart: Cart | null;
-  checkoutUrl: string | null;
-  isLoading: boolean;
-  addToCart: (variantId: string, quantity?: number) => Promise<void>;
-}
-
 const CartContext = createContext<CartContextValue | null>(null);
 
+async function cartRequest(
+  body: Record<string, unknown>
+): Promise<Cart | null> {
+  const response = await fetch("/api/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message ?? "Cart request failed");
+  }
+
+  return response.json();
+}
+
 async function fetchCart(cartId: string): Promise<Cart | null> {
-  const response = await fetch(`/api/cart?cartId=${encodeURIComponent(cartId)}`);
+  const response = await fetch(
+    `/api/cart?cartId=${encodeURIComponent(cartId)}`
+  );
   if (!response.ok) return null;
   return response.json();
 }
 
-async function createCartRequest(
-  lines: { merchandiseId: string; quantity: number }[]
-): Promise<Cart | null> {
-  const response = await fetch("/api/cart", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "create", lines }),
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message ?? "Failed to create cart");
+function persistCart(cart: Cart | null) {
+  if (cart?.id) {
+    localStorage.setItem(CART_ID_KEY, cart.id);
+  } else {
+    localStorage.removeItem(CART_ID_KEY);
   }
-  return response.json();
-}
-
-async function addLinesRequest(
-  cartId: string,
-  lines: { merchandiseId: string; quantity: number }[]
-): Promise<Cart | null> {
-  const response = await fetch("/api/cart", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "add", cartId, lines }),
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message ?? "Failed to add to cart");
-  }
-  return response.json();
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedCartId = localStorage.getItem(CART_ID_KEY);
-    if (!storedCartId) {
-      setIsLoading(false);
-      return;
-    }
+    async function initCart() {
+      try {
+        const storedCartId = localStorage.getItem(CART_ID_KEY);
 
-    fetchCart(storedCartId)
-      .then((existingCart) => {
-        if (existingCart) {
-          setCart(existingCart);
-        } else {
+        if (storedCartId) {
+          const existingCart = await fetchCart(storedCartId);
+          if (existingCart) {
+            setCart(existingCart);
+            return;
+          }
           localStorage.removeItem(CART_ID_KEY);
         }
-      })
-      .finally(() => setIsLoading(false));
+
+        const newCart = await cartRequest({ action: "create", lines: [] });
+        if (newCart) {
+          setCart(newCart);
+          persistCart(newCart);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    initCart();
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = cartOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [cartOpen]);
+
+  const openCart = useCallback(() => setCartOpen(true), []);
+  const closeCart = useCallback(() => setCartOpen(false), []);
 
   const addToCart = useCallback(
     async (variantId: string, quantity = 1) => {
@@ -88,14 +97,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         let updatedCart: Cart | null;
 
         if (cart?.id) {
-          updatedCart = await addLinesRequest(cart.id, lines);
+          updatedCart = await cartRequest({ action: "add", cartId: cart.id, lines });
         } else {
-          updatedCart = await createCartRequest(lines);
+          updatedCart = await cartRequest({ action: "create", lines });
         }
 
         if (updatedCart) {
           setCart(updatedCart);
-          localStorage.setItem(CART_ID_KEY, updatedCart.id);
+          persistCart(updatedCart);
+          openCart();
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [cart?.id, openCart]
+  );
+
+  const updateLineQuantity = useCallback(
+    async (lineId: string, quantity: number) => {
+      if (!cart?.id) return;
+
+      setIsLoading(true);
+      try {
+        if (quantity <= 0) {
+          const updatedCart = await cartRequest({
+            action: "remove",
+            cartId: cart.id,
+            lineIds: [lineId],
+          });
+          if (updatedCart) {
+            setCart(updatedCart);
+            persistCart(updatedCart);
+          }
+          return;
+        }
+
+        const updatedCart = await cartRequest({
+          action: "update",
+          cartId: cart.id,
+          lines: [{ id: lineId, quantity }],
+        });
+
+        if (updatedCart) {
+          setCart(updatedCart);
+          persistCart(updatedCart);
         }
       } finally {
         setIsLoading(false);
@@ -104,20 +150,57 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart?.id]
   );
 
-  const value = useMemo(
+  const removeFromCart = useCallback(
+    async (lineId: string) => {
+      if (!cart?.id) return;
+
+      setIsLoading(true);
+      try {
+        const updatedCart = await cartRequest({
+          action: "remove",
+          cartId: cart.id,
+          lineIds: [lineId],
+        });
+
+        if (updatedCart) {
+          setCart(updatedCart);
+          persistCart(updatedCart);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [cart?.id]
+  );
+
+  const value = useMemo<CartContextValue>(
     () => ({
       cart,
+      cartOpen,
+      isLoading,
       checkoutUrl: cart?.checkoutUrl ?? null,
+      addToCart,
+      updateLineQuantity,
+      removeFromCart,
+      openCart,
+      closeCart,
+    }),
+    [
+      cart,
+      cartOpen,
       isLoading,
       addToCart,
-    }),
-    [cart, isLoading, addToCart]
+      updateLineQuantity,
+      removeFromCart,
+      openCart,
+      closeCart,
+    ]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-export function useCart() {
+export function useCart(): CartContextValue {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error("useCart must be used within a CartProvider");
