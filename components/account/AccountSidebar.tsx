@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import CustomerAvatar from "@/components/CustomerAvatar";
-import { formatMemberSince } from "@/lib/customer-auth/display";
+import { formatMemberSince, getCustomerFullName } from "@/lib/customer-auth/display";
 import type { CustomerSummary, OrderSummary } from "@/lib/customer-auth/types";
 
 type NavItem = {
@@ -43,11 +43,6 @@ function buildNavItems(customer: CustomerSummary, orders: OrderSummary[]): NavIt
       count: customer.bespokeCommissions.length || undefined,
     },
   ];
-}
-
-function displayName(customer: CustomerSummary): string {
-  const full = [customer.firstName, customer.lastName].filter(Boolean).join(" ");
-  return full || customer.displayName || "Your account";
 }
 
 const signOutLinkClassName =
@@ -101,7 +96,7 @@ export default function AccountSidebar({
   onNavigate,
 }: AccountSidebarProps) {
   const navItems = buildNavItems(customer, orders);
-  const name = displayName(customer);
+  const name = getCustomerFullName(customer);
   const memberSince = formatMemberSince(customer.memberSince);
 
   return (
@@ -111,11 +106,13 @@ export default function AccountSidebar({
         <div className="flex flex-col items-start gap-4">
           <CustomerAvatar customer={customer} size="xl" variant="dark" shape="circle" />
           <div className="min-w-0">
-            <p className="font-display text-[1.35rem] font-light leading-snug text-neptura-diamond">
-              {name}
-            </p>
+            {name && (
+              <p className="font-display text-[1.35rem] font-light leading-snug text-neptura-diamond">
+                {name}
+              </p>
+            )}
             {customer.email && (
-              <p className="mt-0.5 truncate text-[0.78rem] font-light text-neptura-ice">
+              <p className={`truncate text-[0.78rem] font-light text-neptura-ice ${name ? "mt-0.5" : ""}`}>
                 {customer.email}
               </p>
             )}
@@ -146,9 +143,13 @@ export default function AccountSidebar({
         <div className="flex items-center gap-4">
           <CustomerAvatar customer={customer} size="xl" variant="dark" shape="circle" />
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[1.25rem] font-light text-neptura-diamond">{name}</p>
+            {name && (
+              <p className="font-display text-[1.25rem] font-light text-neptura-diamond">{name}</p>
+            )}
             {customer.email && (
-              <p className="mt-0.5 truncate text-[0.75rem] font-light text-neptura-ice">{customer.email}</p>
+              <p className={`truncate text-[0.75rem] font-light text-neptura-ice ${name ? "mt-0.5" : ""}`}>
+                {customer.email}
+              </p>
             )}
             {memberSince && (
               <p className="mt-1 text-[0.65rem] font-light text-neptura-ice/70">
