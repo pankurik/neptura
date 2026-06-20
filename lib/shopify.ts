@@ -238,7 +238,7 @@ export async function shopifyFetch<T>({
         "X-Shopify-Storefront-Access-Token": storefrontAccessToken,
       },
       body: JSON.stringify({ query, variables }),
-      cache,
+      ...(revalidate === undefined ? { cache } : {}),
       ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
     }
   );
