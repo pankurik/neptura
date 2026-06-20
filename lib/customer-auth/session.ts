@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { AUTH_COOKIE, sessionCookieOptions } from "./cookies";
+import { AUTH_COOKIE, ID_TOKEN_COOKIE_MAX_AGE, baseCookieOptions, sessionCookieOptions } from "./cookies";
 import { fetchCustomerProfile } from "./customer";
 import { refreshAccessToken } from "./tokens";
 import type { CustomerSummary } from "./types";
@@ -36,7 +36,10 @@ async function persistTokens(tokens: {
   }
 
   if (tokens.id_token) {
-    cookieStore.set(AUTH_COOKIE.idToken, tokens.id_token, options);
+    cookieStore.set(AUTH_COOKIE.idToken, tokens.id_token, {
+      ...baseCookieOptions(ID_TOKEN_COOKIE_MAX_AGE),
+      maxAge: ID_TOKEN_COOKIE_MAX_AGE,
+    });
   }
 }
 
