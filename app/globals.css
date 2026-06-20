@@ -152,6 +152,54 @@
       0 0 48px rgba(0, 0, 8, 0.75);
   }
 
+  .nav-link-adaptive {
+    color: color-mix(
+      in srgb,
+      var(--neptura-crystal) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
+  .nav-link-adaptive:hover {
+    color: color-mix(
+      in srgb,
+      var(--neptura-diamond) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
+  .nav-icon-adaptive {
+    color: color-mix(
+      in srgb,
+      var(--neptura-crystal) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
+  .nav-icon-adaptive:hover {
+    color: color-mix(
+      in srgb,
+      var(--neptura-diamond) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
+  .nav-utility-adaptive {
+    color: color-mix(
+      in srgb,
+      var(--neptura-crystal) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-muted) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
+  .nav-utility-adaptive:hover {
+    color: color-mix(
+      in srgb,
+      var(--neptura-diamond) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+  }
+
   /* Brand wordmark — matches hero typography (Cormorant, light, wide tracking) */
   .brand-wordmark {
     font-weight: 300;
@@ -159,6 +207,18 @@
     text-transform: uppercase;
     line-height: 1;
     letter-spacing: 0.25em;
+  }
+
+  .brand-wordmark--adaptive {
+    color: color-mix(
+      in srgb,
+      var(--neptura-diamond) calc((1 - var(--nav-phase, 0)) * 100%),
+      var(--neptura-light-text) calc(var(--nav-phase, 0) * 100%)
+    );
+    text-shadow:
+      0 0 calc((1 - var(--nav-phase, 0)) * 1px) rgba(0, 0, 8, 1),
+      0 1px calc((1 - var(--nav-phase, 0)) * 24px) rgba(0, 0, 8, 0.95),
+      0 0 calc((1 - var(--nav-phase, 0)) * 48px) rgba(0, 0, 8, 0.75);
   }
 
   .brand-wordmark--expanded {

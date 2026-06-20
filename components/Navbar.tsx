@@ -9,6 +9,18 @@ import { formatPrice } from "@/lib/shopify";
 import type { Product } from "@/lib/types";
 import BrandLogo from "@/components/BrandLogo";
 
+const SCROLL_RANGE = 128;
+const EXPANDED_BLOCK_HEIGHT = 132;
+
+function smoothstep(t: number) {
+  return t * t * (3 - 2 * t);
+}
+
+function rangeMap(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
+  const t = Math.min(1, Math.max(0, (value - inMin) / (inMax - inMin)));
+  return outMin + t * (outMax - outMin);
+}
+
 const MAIN_NAV_LINKS = [
   { label: "Collections", href: "/shop", hasMenu: true },
   { label: "Origin", href: "/#origin", hasMenu: false },
@@ -47,7 +59,24 @@ const megamenuLinkClassName = (isLight: boolean) =>
     ? "text-neptura-light-muted transition-colors duration-300 hover:text-neptura-aurora"
     : "text-neptura-silver transition-colors duration-300 hover:text-neptura-crystal";
 
-function navClasses(isLight: boolean) {
+function navClasses(isLight: boolean, adaptive = false) {
+  const linkBase =
+    "inline-block text-nav font-normal uppercase tracking-nav px-4 py-2.5 transition-colors duration-200";
+  const utilityBase =
+    "text-meta font-normal uppercase tracking-[0.14em] px-3 py-1.5 transition-colors duration-200";
+  const iconBase = "p-2 transition-colors duration-200";
+
+  if (adaptive) {
+    return {
+      utility: `${utilityBase} nav-utility-adaptive hover:text-neptura-light-text`,
+      navItem: `${linkBase} nav-link-adaptive`,
+      navItemActive: `${linkBase} text-neptura-aurora bg-[rgba(74,144,164,0.08)]`,
+      icon: `${iconBase} nav-icon-adaptive`,
+      iconDivider: "0.5px solid rgba(168, 197, 218, 0.12)",
+      tierDivider: "0.5px solid rgba(168, 197, 218, 0.08)",
+    };
+  }
+
   return {
     utility: isLight
       ? "text-meta font-normal uppercase tracking-[0.14em] text-neptura-light-muted transition-all duration-[400ms] hover:text-neptura-light-text px-3 py-1.5"
@@ -150,7 +179,7 @@ export default function Navbar() {
   const { cart, openCart } = useCart();
   const itemCount = cart?.totalQuantity ?? 0;
 
-  const [scrolled, setScrolled] = useState(false);
+  const [navPhase, setNavPhase] = useState(0);
   const [headerHovered, setHeaderHovered] = useState(false);
   const [activeMenu, setActiveMenu] = useState<"collections" | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -161,15 +190,37 @@ export default function Navbar() {
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const overlayOpen = Boolean(activeMenu) || mobileOpen;
-  const isCompact = !isHome || scrolled;
-  const headerHighlighted = isCompact || overlayOpen || headerHovered;
+  const effectivePhase = !isHome ? 1 : overlayOpen || headerHovered ? 1 : navPhase;
+  const expandedOpacity = 1 - rangeMap(effectivePhase, 0, 0.55, 0, 1);
+  const compactLogoOpacity = rangeMap(effectivePhase, 0.35, 0.85, 0, 1);
+  const isLightNav = effectivePhase > 0.45 || overlayOpen || !isHome;
+  const useAdaptiveNav = isHome && effectivePhase < 1 && !overlayOpen;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    onScroll();
+    if (!isHome) {
+      setNavPhase(1);
+      return;
+    }
+
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      const t = Math.min(1, Math.max(0, window.scrollY / SCROLL_RANGE));
+      setNavPhase(smoothstep(t));
+    };
+
+    const onScroll = () => {
+      if (!raf) raf = window.requestAnimationFrame(update);
+    };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [isHome]);
 
   useEffect(() => {
     async function fetchFeatured() {
@@ -226,18 +277,10 @@ export default function Navbar() {
     ? featuredProduct.title.split("—")[0].trim()
     : "";
 
-  const isLightNav = headerHighlighted;
-  const nav = navClasses(isLightNav);
-
-  const headerSurface = isLightNav
-    ? {
-        backgroundColor: "var(--neptura-light-bg)",
-        borderBottom: "0.5px solid rgba(74, 144, 164, 0.12)",
-      }
-    : {
-        backgroundColor: "transparent",
-        borderBottom: "0.5px solid transparent",
-      };
+  const nav = navClasses(isLightNav, useAdaptiveNav);
+  const headerStyle = {
+    "--nav-phase": effectivePhase,
+  } as React.CSSProperties;
 
   return (
     <>
@@ -251,20 +294,25 @@ export default function Navbar() {
       />
 
       <header
-        className="fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,color] duration-[400ms] ease-in-out"
-        style={headerSurface}
+        className="fixed inset-x-0 top-0 z-50"
+        style={headerStyle}
         onMouseEnter={() => setHeaderHovered(true)}
         onMouseLeave={() => {
           setHeaderHovered(false);
           handleMouseLeaveMenu();
         }}
       >
-        {/* ── Mobile ── */}
         <div
-          className={`flex items-center justify-between px-5 py-4 transition-colors duration-[400ms] lg:hidden ${
-            isLightNav ? "bg-neptura-light-bg" : "bg-transparent"
-          }`}
-        >
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 border-b"
+          style={{
+            backgroundColor: "var(--neptura-light-bg)",
+            opacity: effectivePhase,
+            borderBottomColor: `rgba(74, 144, 164, ${0.12 * effectivePhase})`,
+          }}
+        />
+        {/* ── Mobile ── */}
+        <div className="flex items-center justify-between px-5 py-4 lg:hidden">
           <button
             type="button"
             className={nav.icon}
@@ -283,7 +331,7 @@ export default function Navbar() {
             onClick={closeAll}
             className="absolute left-1/2 -translate-x-1/2 transition-opacity duration-[400ms] hover:opacity-80"
           >
-            <BrandLogo variant="mobile" light={isLightNav} />
+            <BrandLogo variant="mobile" adaptive={useAdaptiveNav} light={isLightNav && !useAdaptiveNav} />
           </Link>
 
           <div className="flex items-center gap-1">
@@ -307,75 +355,69 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ── Desktop: expanded 3-tier at hero top → compact sticky bar on scroll ── */}
+        {/* ── Desktop: expanded chrome above a stable compact bar ── */}
         <div className="mx-auto hidden max-w-[96rem] px-8 lg:block">
-          {/* Tier 1 — utility bar (expanded only) */}
           <div
-            className={`flex items-center justify-end overflow-hidden transition-all duration-[400ms] ease-in-out ${
-              isCompact
-                ? "max-h-0 py-0 opacity-0 pointer-events-none"
-                : "max-h-12 py-2 opacity-100"
-            }`}
-            style={{ borderBottom: isCompact ? "none" : nav.tierDivider }}
-            aria-hidden={isCompact}
+            aria-hidden={expandedOpacity < 0.05}
+            className="overflow-hidden"
+            style={{
+              height: `${expandedOpacity * EXPANDED_BLOCK_HEIGHT}px`,
+              opacity: expandedOpacity,
+              pointerEvents: effectivePhase > 0.82 ? "none" : "auto",
+            }}
           >
-            <div className="flex items-center gap-1">
-              {UTILITY_RIGHT.map((item) =>
-                item.icon === "wishlist" ? (
-                  <button key={item.label} type="button" className={`${nav.utility} inline-flex items-center gap-1.5`} aria-label="Wishlist">
-                    <WishlistIcon />
-                    {item.label}
-                  </button>
-                ) : (
-                  <Link key={item.label} href={item.href} className={`${nav.utility} inline-flex items-center gap-1.5`}>
-                    <AccountIcon />
-                    {item.label}
-                  </Link>
-                )
-              )}
+            <div
+              className="flex items-center justify-end py-2"
+              style={{ borderBottom: nav.tierDivider }}
+            >
+              <div className="flex items-center gap-1">
+                {UTILITY_RIGHT.map((item) =>
+                  item.icon === "wishlist" ? (
+                    <button key={item.label} type="button" className={`${nav.utility} inline-flex items-center gap-1.5`} aria-label="Wishlist">
+                      <WishlistIcon />
+                      {item.label}
+                    </button>
+                  ) : (
+                    <Link key={item.label} href={item.href} className={`${nav.utility} inline-flex items-center gap-1.5`}>
+                      <AccountIcon />
+                      {item.label}
+                    </Link>
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-center pb-2 pt-3 md:pb-3 md:pt-4">
+              <Link href="/" onClick={closeAll} className="hover:opacity-80">
+                <BrandLogo variant="expanded" adaptive={useAdaptiveNav} light={isLightNav && !useAdaptiveNav} />
+              </Link>
             </div>
           </div>
 
-          {/* Tier 2 — centered logo (expanded only) */}
           <div
-            className={`flex justify-center overflow-hidden transition-all duration-[400ms] ease-in-out ${
-              isCompact ? "max-h-0 py-0 opacity-0" : "pb-2 pt-3 opacity-100 md:pb-3 md:pt-4"
-            }`}
-            aria-hidden={isCompact}
+            className="relative flex items-center"
+            style={{
+              paddingTop: `${4 + effectivePhase * 10}px`,
+              paddingBottom: `${4 + effectivePhase * 10}px`,
+            }}
           >
             <Link
               href="/"
               onClick={closeAll}
-              className="transition-opacity duration-[400ms] hover:opacity-80"
+              className="shrink-0 hover:opacity-80"
+              style={{
+                opacity: compactLogoOpacity,
+                visibility: compactLogoOpacity < 0.03 ? "hidden" : "visible",
+                pointerEvents: compactLogoOpacity < 0.03 ? "none" : "auto",
+              }}
+              aria-hidden={compactLogoOpacity < 0.03}
+              tabIndex={compactLogoOpacity < 0.03 ? -1 : undefined}
             >
-              <BrandLogo variant="expanded" light={isLightNav} />
-            </Link>
-          </div>
-
-          {/* Tier 3 — main nav (expands to full row when compact) */}
-          <div
-            className={`relative flex items-center transition-all duration-[400ms] ease-in-out ${
-              isCompact ? "justify-between gap-10 py-3.5" : "justify-center pb-1 pt-0"
-            }`}
-          >
-            <Link
-              href="/"
-              onClick={closeAll}
-              className={`shrink-0 transition-all duration-[400ms] ease-in-out hover:opacity-80 ${
-                isCompact
-                  ? "translate-x-0 opacity-100"
-                  : "pointer-events-none absolute w-0 -translate-x-3 overflow-hidden opacity-0"
-              }`}
-              aria-hidden={!isCompact}
-              tabIndex={isCompact ? undefined : -1}
-            >
-              <BrandLogo variant="compact" light={isLightNav} />
+              <BrandLogo variant="compact" adaptive={useAdaptiveNav} light={isLightNav && !useAdaptiveNav} />
             </Link>
 
             <nav
-              className={`flex flex-wrap items-center gap-x-1 gap-y-1 transition-all duration-[400ms] ${
-                isCompact ? "min-w-0 flex-1 justify-center" : "justify-center"
-              }`}
+              className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-x-1 gap-y-1"
               aria-label="Primary"
             >
               {MAIN_NAV_LINKS.map((item) => (
@@ -401,10 +443,11 @@ export default function Navbar() {
             </nav>
 
             <div
-              className={`flex shrink-0 items-center gap-1 transition-all duration-[400ms] ${
-                isCompact ? "" : "absolute right-0 pl-8"
-              }`}
-              style={{ borderLeft: isCompact ? "none" : nav.iconDivider }}
+              className="ml-auto flex shrink-0 items-center gap-1 pl-8"
+              style={{
+                borderLeft:
+                  effectivePhase < 0.2 && expandedOpacity > 0.05 ? nav.iconDivider : "none",
+              }}
             >
               <button
                 type="button"
