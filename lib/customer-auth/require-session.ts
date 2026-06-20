@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { CustomerAuthError } from "./auth-errors";
 import { fetchCustomerProfile } from "./customer";
 import {
@@ -12,6 +13,13 @@ export type ResolvedCustomerSession = {
   customer: CustomerSummary;
   accessToken: string;
 };
+
+export const ACCOUNT_SESSION_EXPIRED_MESSAGE =
+  "Your session expired. Please sign in again.";
+
+export function accountSessionUnauthorizedResponse() {
+  return NextResponse.json({ error: ACCOUNT_SESSION_EXPIRED_MESSAGE }, { status: 401 });
+}
 
 /** Server Components — read session without modifying cookies. */
 export async function getCustomerSession(): Promise<CustomerSummary | null> {
