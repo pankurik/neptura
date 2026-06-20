@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchCustomerProfile } from "@/lib/customer-auth/customer";
 import { formatPhoneE164, updateCustomerPhone, validatePhoneInput } from "@/lib/customer-auth/phone";
 import { DEFAULT_PHONE_COUNTRY_CODE } from "@/lib/phone/country-codes";
-import { getCustomerAccessToken } from "@/lib/customer-auth/session";
+import {
+  accountSessionUnauthorizedResponse,
+  requireCustomerSession,
+} from "@/lib/customer-auth/require-session";
 
 type PhoneBody = {
   countryCode?: string;
@@ -11,10 +13,10 @@ type PhoneBody = {
 };
 
 export async function POST(request: NextRequest) {
-  const accessToken = await getCustomerAccessToken();
+  const session = await requireCustomerSession();
 
-  if (!accessToken) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  if (!session) {
+    return accountSessionUnauthorizedResponse();
   }
 
   let body: PhoneBody;
@@ -25,14 +27,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const customer = await fetchCustomerProfile(accessToken);
-
-  if (!customer) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  }
-
   if (body.clear) {
-    const { phone, errors } = await updateCustomerPhone(accessToken, customer, null);
+    const { phone, errors } = await updateCustomerPhone(session.accessToken, session.customer, null);
 
     if (errors.length) {
       return NextResponse.json({ error: errors[0] ?? "Phone could not be removed." }, { status: 422 });
@@ -51,7 +47,11 @@ export async function POST(request: NextRequest) {
 
   const digits = nationalNumber.replace(/\D/g, "");
   const phone = formatPhoneE164(countryCode, digits);
-  const { phone: updatedPhone, errors } = await updateCustomerPhone(accessToken, customer, phone);
+  const { phone: updatedPhone, errors } = await updateCustomerPhone(
+    session.accessToken,
+    session.customer,
+    phone
+  );
 
   if (errors.length) {
     return NextResponse.json({ error: errors[0] ?? "Phone could not be updated." }, { status: 422 });
