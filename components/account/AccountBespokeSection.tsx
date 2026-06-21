@@ -34,7 +34,7 @@ export default function AccountBespokeSection({ commissions }: AccountBespokeSec
             </div>
             <Link
               href="/bespoke"
-              className="mt-6 inline-block text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
+              className="account-link-action mt-6 inline-block text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
             >
               Start a bespoke enquiry →
             </Link>
@@ -45,7 +45,7 @@ export default function AccountBespokeSection({ commissions }: AccountBespokeSec
           {commissions.map((commission) => (
             <article
               key={commission.id}
-              className="flex flex-col justify-between border border-neptura-light bg-neptura-light-bg p-6 sm:p-7"
+              className="account-canvas-card flex flex-col justify-between border border-neptura-light bg-neptura-light-bg p-6 sm:p-7"
             >
               <div>
                 <div className="flex items-start justify-between gap-4">
@@ -74,7 +74,7 @@ export default function AccountBespokeSection({ commissions }: AccountBespokeSec
           <div className="flex items-center border border-dashed border-neptura-light bg-neptura-light-surface/40 p-6 sm:col-span-2">
             <Link
               href="/bespoke"
-              className="text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
+              className="account-link-action text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
             >
               Submit another enquiry →
             </Link>
