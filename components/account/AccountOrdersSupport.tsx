@@ -20,7 +20,7 @@ export default function AccountOrdersSupport({ className = "" }: AccountOrdersSu
 
       <a
         href={`mailto:${SUPPORT_EMAIL}`}
-        className="shrink-0 text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora underline decoration-neptura-aurora/40 underline-offset-4 transition-colors hover:text-neptura-light-text"
+        className="account-link-action shrink-0 text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora underline decoration-neptura-aurora/40 underline-offset-4 transition-colors hover:text-neptura-light-text"
       >
         Contact us →
       </a>
