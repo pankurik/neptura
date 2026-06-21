@@ -56,8 +56,46 @@ export type OrderLineItemSummary = {
   id: string;
   title: string;
   quantity: number;
+  variantId: string | null;
   imageUrl: string | null;
   imageAlt: string | null;
+  variantTitle: string | null;
+  unitPrice: { amount: string; currencyCode: string } | null;
+  lineTotal: { amount: string; currencyCode: string } | null;
+  variantOptions: { name: string; value: string }[];
+};
+
+export type OrderTrackingSummary = {
+  company: string | null;
+  number: string | null;
+  url: string | null;
+};
+
+export type OrderAddressSummary = {
+  formatted: string[];
+  firstName: string | null;
+  lastName: string | null;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  province: string | null;
+  zip: string | null;
+  territoryCode: string | null;
+  phoneNumber: string | null;
+};
+
+export type OrderPaymentSummary = {
+  label: string;
+  amount: { amount: string; currencyCode: string } | null;
+  processedAt: string | null;
+};
+
+export type OrderProgressStep = {
+  id: "confirmed" | "crafting" | "shipped" | "delivered";
+  label: string;
+  date: string | null;
+  complete: boolean;
+  current: boolean;
 };
 
 export type OrderSummary = {
@@ -73,6 +111,19 @@ export type OrderSummary = {
   /** Sum of line item quantities across the full order */
   totalItemCount: number;
   lineItems: OrderLineItemSummary[];
+};
+
+export type OrderDetailSummary = OrderSummary & {
+  subtotal: { amount: string; currencyCode: string } | null;
+  totalShipping: { amount: string; currencyCode: string } | null;
+  totalTax: { amount: string; currencyCode: string } | null;
+  email: string | null;
+  phone: string | null;
+  shippingAddress: OrderAddressSummary | null;
+  billingAddress: OrderAddressSummary | null;
+  tracking: OrderTrackingSummary | null;
+  payment: OrderPaymentSummary | null;
+  progressSteps: OrderProgressStep[];
 };
 
 export type TokenResponse = {
