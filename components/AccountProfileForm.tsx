@@ -153,7 +153,9 @@ export default function AccountProfileForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="btn-light-primary w-full disabled:opacity-60"
+        className={`btn-light-primary w-full disabled:opacity-60 ${
+          isSubmitting ? "account-action-btn--loading" : ""
+        }`}
       >
         {isSubmitting ? "Saving…" : submitLabel}
       </button>
