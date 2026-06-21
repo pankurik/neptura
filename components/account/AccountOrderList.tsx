@@ -58,7 +58,7 @@ function OrderThumb({ order }: { order: OrderSummary }) {
           alt={preview.item.imageAlt ?? preview.item.title}
           fill
           sizes="48px"
-          className="object-cover"
+          className="account-order-list-row__thumb object-cover"
         />
       ) : (
         <span className="flex h-full w-full items-center justify-center text-neptura-aurora/45">
@@ -79,7 +79,7 @@ function OrderRow({ order }: { order: OrderSummary }) {
     <li>
       <Link
         href={orderDetailPath(order.id)}
-        className="group flex flex-col gap-4 px-5 py-5 transition-colors hover:bg-neptura-light-surface/50 sm:flex-row sm:items-start sm:gap-6 sm:px-8 sm:py-6"
+        className="account-order-list-row group flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-start sm:gap-6 sm:px-8 sm:py-6"
       >
         <div className="flex min-w-0 flex-1 items-start gap-4 sm:gap-6">
           <OrderThumb order={order} />
