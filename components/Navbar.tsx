@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/shopify";
 import type { Product } from "@/lib/types";
 import BrandLogo from "@/components/BrandLogo";
+import AccountNavMenu, { AccountNavMenuLinks, AccountSignInLink } from "@/components/account/AccountNavMenu";
 import CustomerAvatar from "@/components/CustomerAvatar";
 import type { CustomerSummary } from "@/lib/customer-auth/types";
 
@@ -119,15 +120,6 @@ function WishlistIcon() {
   );
 }
 
-function AccountIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0">
-      <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="0.75" />
-      <path d="M3.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function BagIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0">
@@ -223,6 +215,9 @@ function AccountNavLink({
   loginHref,
   className,
   avatarVariant,
+  isLightNav,
+  accountMenuOpen,
+  onAccountMenuOpenChange,
   onClick,
   onMouseEnter,
 }: {
@@ -230,39 +225,34 @@ function AccountNavLink({
   loginHref: string;
   className: string;
   avatarVariant?: "light" | "dark";
+  isLightNav?: boolean;
+  accountMenuOpen?: boolean;
+  onAccountMenuOpenChange?: (open: boolean) => void;
   onClick?: () => void;
   onMouseEnter?: () => void;
 }) {
   if (customer) {
     return (
-      <Link
-        href="/account"
-        className={`${className} inline-flex items-center gap-1.5`}
-        aria-label="Your account"
-        onClick={onClick}
+      <AccountNavMenu
+        customer={customer}
+        className={className}
+        avatarVariant={avatarVariant}
+        isLightNav={isLightNav}
+        open={accountMenuOpen}
+        onOpenChange={onAccountMenuOpenChange}
+        onNavigate={onClick}
         onMouseEnter={onMouseEnter}
-      >
-        <CustomerAvatar
-          customer={customer}
-          size={avatarVariant ? "sm" : undefined}
-          showName={!avatarVariant}
-          shape="circle"
-          variant={avatarVariant}
-        />
-      </Link>
+      />
     );
   }
 
   return (
-    <Link
-      href={loginHref}
-      className={`${className} inline-flex items-center gap-1.5`}
+    <AccountSignInLink
+      loginHref={loginHref}
+      className={className}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
-    >
-      <AccountIcon />
-      Sign in
-    </Link>
+    />
   );
 }
 
@@ -270,12 +260,18 @@ function UtilityAccountWishlistLinks({
   customer,
   loginHref,
   utilityClassName,
+  isLightNav,
+  accountMenuOpen,
+  onAccountMenuOpenChange,
   onClick,
   onMouseEnter,
 }: {
   customer: CustomerSummary | null;
   loginHref: string;
   utilityClassName: string;
+  isLightNav?: boolean;
+  accountMenuOpen?: boolean;
+  onAccountMenuOpenChange?: (open: boolean) => void;
   onClick?: () => void;
   onMouseEnter?: () => void;
 }) {
@@ -292,6 +288,9 @@ function UtilityAccountWishlistLinks({
         customer={customer}
         loginHref={loginHref}
         className={utilityClassName}
+        isLightNav={isLightNav}
+        accountMenuOpen={accountMenuOpen}
+        onAccountMenuOpenChange={onAccountMenuOpenChange}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
       />
@@ -308,6 +307,7 @@ export default function Navbar() {
   const [navPhase, setNavPhase] = useState(0);
   const [headerHovered, setHeaderHovered] = useState(false);
   const [activeMenu, setActiveMenu] = useState<"collections" | null>(null);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(true);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
@@ -414,10 +414,15 @@ export default function Navbar() {
     leaveTimerRef.current = setTimeout(() => setActiveMenu(null), 250);
   };
 
-  const closeMenuImmediately = () => {
+  const closeCollectionsMenu = () => {
     if (enterTimerRef.current) clearTimeout(enterTimerRef.current);
     if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current);
     setActiveMenu(null);
+  };
+
+  const closeMenuImmediately = () => {
+    closeCollectionsMenu();
+    setAccountMenuOpen(false);
   };
 
   const closeMobile = () => setMobileOpen(false);
@@ -515,6 +520,9 @@ export default function Navbar() {
                 loginHref={loginHref}
                 className={nav.icon}
                 avatarVariant={avatarVariant}
+                isLightNav={isLightNav}
+                accountMenuOpen={accountMenuOpen}
+                onAccountMenuOpenChange={setAccountMenuOpen}
                 onClick={closeAll}
               />
             )}
@@ -567,6 +575,9 @@ export default function Navbar() {
                     customer={customer}
                     loginHref={loginHref}
                     utilityClassName={nav.utility}
+                    isLightNav={isLightNav}
+                    accountMenuOpen={accountMenuOpen}
+                    onAccountMenuOpenChange={setAccountMenuOpen}
                   />
                 </div>
               </div>
@@ -659,8 +670,11 @@ export default function Navbar() {
                   loginHref={loginHref}
                   className={nav.utility}
                   avatarVariant={avatarVariant}
+                  isLightNav={isLightNav}
+                  accountMenuOpen={accountMenuOpen}
+                  onAccountMenuOpenChange={setAccountMenuOpen}
                   onClick={closeAll}
-                  onMouseEnter={closeMenuImmediately}
+                  onMouseEnter={closeCollectionsMenu}
                 />
               )}
               <button
@@ -848,13 +862,12 @@ export default function Navbar() {
           ))}
 
           {customer ? (
-            <Link
-              href="/account"
-              onClick={closeMobile}
-              className="flex items-center gap-3 border-b border-neptura-ice/10 py-5 text-nav uppercase tracking-nav text-neptura-silver transition-colors hover:text-neptura-crystal"
-            >
-              <CustomerAvatar customer={customer} showName shape="circle" />
-            </Link>
+            <div className="border-b border-neptura-ice/10 py-5">
+              <div className="flex items-center gap-3 pb-4">
+                <CustomerAvatar customer={customer} showName shape="circle" variant="dark" />
+              </div>
+              <AccountNavMenuLinks customer={customer} isLightNav={false} onNavigate={closeMobile} />
+            </div>
           ) : (
             <NavLink
               href={loginHref}
