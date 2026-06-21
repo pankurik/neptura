@@ -89,11 +89,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const openCart = useCallback(() => setCartOpen(true), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
 
-  const addToCart = useCallback(
-    async (variantId: string, quantity = 1) => {
+  const addLinesToCart = useCallback(
+    async (lines: { merchandiseId: string; quantity: number }[]) => {
+      if (lines.length === 0) {
+        return;
+      }
+
       setIsLoading(true);
       try {
-        const lines = [{ merchandiseId: variantId, quantity }];
         let updatedCart: Cart | null;
 
         if (cart?.id) {
@@ -112,6 +115,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     },
     [cart?.id, openCart]
+  );
+
+  const addToCart = useCallback(
+    async (variantId: string, quantity = 1) => {
+      await addLinesToCart([{ merchandiseId: variantId, quantity }]);
+    },
+    [addLinesToCart]
   );
 
   const updateLineQuantity = useCallback(
@@ -180,6 +190,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       checkoutUrl: cart?.checkoutUrl ?? null,
       addToCart,
+      addLinesToCart,
       updateLineQuantity,
       removeFromCart,
       openCart,
@@ -190,6 +201,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cartOpen,
       isLoading,
       addToCart,
+      addLinesToCart,
       updateLineQuantity,
       removeFromCart,
       openCart,
