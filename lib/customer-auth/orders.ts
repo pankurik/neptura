@@ -31,6 +31,8 @@ const ORDER_LIST_FIELDS = `
       id
       title
       quantity
+      variantId
+      giftCard
       image {
         url
         altText
@@ -327,7 +329,7 @@ function mapLineItem(node: LineItemNode, detailed = false): OrderLineItemSummary
     id: node.id,
     title: pickLineItemTitle(node),
     quantity: node.quantity,
-    variantId: detailed && node.variantId && !node.giftCard ? node.variantId : null,
+    variantId: node.variantId && !node.giftCard ? node.variantId : null,
     imageUrl: node.image?.url ?? null,
     imageAlt: node.image?.altText ?? null,
     variantTitle: detailed ? node.variantTitle ?? node.presentmentTitle ?? null : null,
@@ -731,6 +733,24 @@ export function formatMoneyAmount(
   }
 
   return formatPrice(money.amount, money.currencyCode);
+}
+
+export function formatOrderTotalDisplay(
+  money: { amount: string; currencyCode: string } | null | undefined
+): string | null {
+  if (!money) return null;
+
+  const amount = parseFloat(money.amount);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  const formatted = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: money.currencyCode,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+
+  return `${formatted} ${money.currencyCode}`;
 }
 
 export function formatOrderShippingAmount(
