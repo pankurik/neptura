@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccountOrdersPanel from "@/components/account/AccountOrdersPanel";
+import AccountOrdersSupport from "@/components/account/AccountOrdersSupport";
 import AccountSubpageHero from "@/components/account/AccountSubpageHero";
 import AccountSubpageNav from "@/components/account/AccountSubpageNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -30,27 +31,31 @@ export default async function AccountOrdersPage() {
         {orders.length > 0 ? (
           <>
             <AccountOrdersPanel orders={orders} summary={summary} />
+            <AccountOrdersSupport className="mt-8" />
             <AccountSubpageNav backHref="/account#stones" className="mt-8" />
           </>
         ) : (
-          <div className="border border-neptura-light bg-neptura-light-bg">
-            <div className="border-b border-neptura-light px-5 py-5 sm:px-8">
-              <p className="font-display text-xl font-light text-neptura-light-text">
-                Your collection is waiting
-              </p>
-              <p className="mt-2 text-[0.8rem] font-light leading-relaxed text-neptura-light-muted">
-                When you place an order, it will appear here with tracking and details.
-              </p>
+          <>
+            <div className="border border-neptura-light bg-neptura-light-bg">
+              <div className="border-b border-neptura-light px-5 py-5 sm:px-8">
+                <p className="font-display text-xl font-light text-neptura-light-text">
+                  Your collection is waiting
+                </p>
+                <p className="mt-2 text-[0.8rem] font-light leading-relaxed text-neptura-light-muted">
+                  When you place an order, it will appear here with tracking and details.
+                </p>
+              </div>
+              <div className="px-6 py-10 text-center">
+                <Link
+                  href="/shop"
+                  className="inline-block text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
+                >
+                  Shop the collection →
+                </Link>
+              </div>
             </div>
-            <div className="px-6 py-10 text-center">
-              <Link
-                href="/shop"
-                className="inline-block text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
-              >
-                Shop the collection →
-              </Link>
-            </div>
-          </div>
+            <AccountOrdersSupport className="mt-8" />
+          </>
         )}
       </div>
 

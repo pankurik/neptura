@@ -1,17 +1,13 @@
 const SUPPORT_EMAIL = "info@neptura.in";
 
 type AccountOrdersSupportProps = {
-  embedded?: boolean;
+  className?: string;
 };
 
-export default function AccountOrdersSupport({ embedded = false }: AccountOrdersSupportProps) {
+export default function AccountOrdersSupport({ className = "" }: AccountOrdersSupportProps) {
   return (
     <aside
-      className={
-        embedded
-          ? "flex flex-col gap-4 border-t border-neptura-light py-5 pl-6 pr-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:pl-8 sm:pr-8 [border-left:2px_solid_var(--neptura-aurora)]"
-          : "mt-6 border border-neptura-light bg-neptura-light-bg px-6 py-6 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:px-8 sm:py-7"
-      }
+      className={`flex flex-col gap-4 py-1 pl-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 [border-left:2px_solid_var(--neptura-aurora)] ${className}`}
     >
       <div>
         <h2 className="font-display text-base font-light text-neptura-light-text sm:text-lg">

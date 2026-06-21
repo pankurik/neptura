@@ -6,7 +6,6 @@ import AccountOrderList, {
   ORDERS_LOAD_MORE_STEP,
 } from "@/components/account/AccountOrderList";
 import AccountOrdersSortMenu from "@/components/account/AccountOrdersSortMenu";
-import AccountOrdersSupport from "@/components/account/AccountOrdersSupport";
 import {
   filterOrdersByQuery,
   filterOrdersByStatus,
@@ -165,11 +164,9 @@ export default function AccountOrdersPanel({ orders, summary }: AccountOrdersPan
               ) : null
             }
           />
-          <AccountOrdersSupport embedded />
         </>
       ) : (
-        <>
-          <div className="px-6 py-12 text-center">
+        <div className="px-6 py-12 text-center">
             <p className="font-display text-lg font-light text-neptura-light-text">
               No matching orders
             </p>
@@ -187,9 +184,7 @@ export default function AccountOrdersPanel({ orders, summary }: AccountOrdersPan
                 Clear search and filters
               </button>
             ) : null}
-          </div>
-          <AccountOrdersSupport embedded />
-        </>
+        </div>
       )}
     </div>
   );
