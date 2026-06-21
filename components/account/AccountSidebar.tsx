@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import AccountCosmicBackdrop from "@/components/account/AccountCosmicBackdrop";
 import CustomerAvatar from "@/components/CustomerAvatar";
 import { formatMemberSince, getCustomerFullName } from "@/lib/customer-auth/display";
 import type { CustomerSummary, OrderSummary } from "@/lib/customer-auth/types";
@@ -102,44 +103,49 @@ export default function AccountSidebar({
   return (
     <>
       {/* Desktop sidebar — self-start so sticky pins while main content scrolls */}
-      <aside className="hidden w-60 shrink-0 flex-col self-start bg-neptura-neptune md:sticky md:top-0 md:flex md:min-h-screen md:px-6 md:pb-10 md:pt-28">
-        <div className="flex flex-col items-start gap-4">
-          <CustomerAvatar customer={customer} size="xl" variant="dark" shape="circle" />
-          <div className="min-w-0">
-            {name && (
-              <p className="font-display text-[1.35rem] font-light leading-snug text-neptura-diamond">
-                {name}
-              </p>
-            )}
-            {customer.email && (
-              <p className={`truncate text-[0.78rem] font-light text-neptura-ice ${name ? "mt-0.5" : ""}`}>
-                {customer.email}
-              </p>
-            )}
-            {memberSince && (
-              <p className="mt-1 text-[0.68rem] font-light text-neptura-ice/70">
-                Member since {memberSince}
-              </p>
-            )}
+      <aside className="account-sidebar-cosmic relative hidden w-60 shrink-0 flex-col self-start overflow-hidden md:sticky md:top-0 md:flex md:h-screen md:px-6 md:pb-10 md:pt-28">
+        <AccountCosmicBackdrop variant="sidebar" />
+        <div className="relative z-[1] flex flex-1 flex-col">
+          <div className="flex flex-col items-start gap-4">
+            <CustomerAvatar customer={customer} size="xl" variant="dark" shape="circle" />
+            <div className="min-w-0">
+              {name && (
+                <p className="font-display text-[1.35rem] font-light leading-snug text-neptura-diamond">
+                  {name}
+                </p>
+              )}
+              {customer.email && (
+                <p className={`truncate text-[0.78rem] font-light text-neptura-ice ${name ? "mt-0.5" : ""}`}>
+                  {customer.email}
+                </p>
+              )}
+              {memberSince && (
+                <p className="mt-1 text-[0.68rem] font-light text-neptura-ice/70">
+                  Member since {memberSince}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        <NavLinks
-          items={navItems}
-          activeSection={activeSection}
-          onNavigate={onNavigate}
-          className="mt-10 flex-1"
-        />
+          <NavLinks
+            items={navItems}
+            activeSection={activeSection}
+            onNavigate={onNavigate}
+            className="mt-10"
+          />
 
-        <div className="mt-auto pt-6">
-          <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
-            Sign out
-          </Link>
+          <div className="mt-auto pt-6">
+            <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
+              Sign out
+            </Link>
+          </div>
         </div>
       </aside>
 
       {/* Mobile: identity + horizontal nav — sticks below site header */}
-      <div className="sticky top-28 z-20 flex flex-col bg-neptura-neptune px-6 py-6 md:hidden">
+      <div className="account-sidebar-cosmic relative sticky top-28 z-20 flex flex-col overflow-hidden px-6 py-6 md:hidden">
+        <AccountCosmicBackdrop variant="sidebar" />
+        <div className="relative z-[1] flex flex-col">
         <div className="flex items-center gap-4">
           <CustomerAvatar customer={customer} size="xl" variant="dark" shape="circle" />
           <div className="min-w-0 flex-1">
@@ -188,6 +194,7 @@ export default function AccountSidebar({
           <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
             Sign out
           </Link>
+        </div>
         </div>
       </div>
     </>
