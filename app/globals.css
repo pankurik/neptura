@@ -1078,6 +1078,27 @@
   }
 }
 
+.account-nav-menu-item {
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.35s var(--neptura-ease-out-expo),
+    background-color 0.25s ease;
+}
+
+@media (hover: hover) {
+  .account-nav-menu-item:hover {
+    border-color: var(--neptura-aurora);
+    color: var(--neptura-aurora);
+    transform: translateX(3px);
+    background-color: color-mix(in srgb, var(--neptura-aurora) 6%, transparent);
+  }
+
+  .account-nav-menu-trigger:hover {
+    opacity: 0.88;
+  }
+}
+
 .account-page-enter {
   opacity: 0;
   animation: account-order-detail-rise 0.72s var(--neptura-ease-out-expo) forwards;
@@ -1432,7 +1453,9 @@
   .account-page-enter,
   .account-link-action,
   .account-sidebar-nav,
-  .account-canvas-card {
+  .account-canvas-card,
+  .account-nav-menu-item,
+  .account-nav-menu-trigger {
     animation: none !important;
     transition: none !important;
     transform: none !important;
