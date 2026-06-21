@@ -44,7 +44,7 @@ export default function AccountDashboardLayout({
 
         <main className="min-w-0 flex-1 bg-neptura-light-bg px-6 pb-10 pt-28 md:px-10 md:pb-12 md:pt-28 lg:px-14 lg:pb-14 lg:pt-28">
           {!profileComplete && (
-            <div className="mb-12 border border-neptura-light bg-neptura-light-surface/40 px-6 py-5">
+            <div className="account-page-enter account-page-enter--0 mb-12 border border-neptura-light bg-neptura-light-surface/40 px-6 py-5">
               <p className="font-display text-xl font-light text-neptura-light-text">
                 Welcome to Neptura
               </p>
@@ -55,18 +55,28 @@ export default function AccountDashboardLayout({
           )}
 
           <div className="space-y-16 lg:space-y-20">
-            <AccountSettingsSection
-              customer={customer}
-              openProfileEditor={!profileComplete}
-              profileRedirectTo={profileRedirectTo}
-            />
-            <AccountDeliverySection customer={customer} />
-            <AccountStonesSection orders={orders} />
-            <AccountWishlistSection
-              products={wishlistProducts}
-              handleCount={customer.wishlistHandles.length}
-            />
-            <AccountBespokeSection commissions={customer.bespokeCommissions} />
+            <div className="account-page-enter account-page-enter--1">
+              <AccountSettingsSection
+                customer={customer}
+                openProfileEditor={!profileComplete}
+                profileRedirectTo={profileRedirectTo}
+              />
+            </div>
+            <div className="account-page-enter account-page-enter--2">
+              <AccountDeliverySection customer={customer} />
+            </div>
+            <div className="account-page-enter account-page-enter--3">
+              <AccountStonesSection orders={orders} />
+            </div>
+            <div className="account-page-enter account-page-enter--4">
+              <AccountWishlistSection
+                products={wishlistProducts}
+                handleCount={customer.wishlistHandles.length}
+              />
+            </div>
+            <div className="account-page-enter account-page-enter--5">
+              <AccountBespokeSection commissions={customer.bespokeCommissions} />
+            </div>
           </div>
         </main>
       </div>
