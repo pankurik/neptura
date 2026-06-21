@@ -77,9 +77,8 @@ function lineItemTitleParts(title: string): { primary: string; secondary: string
   return { primary: title, secondary: [] };
 }
 
-const STONE_LIST_MAX_ITEMS = 5;
-/** ~5 compact stone rows visible before scrolling */
-const STONE_LIST_MAX_HEIGHT = "max-h-[calc(5.75rem*5)]";
+const STONE_LIST_MAX_VISIBLE = 5;
+const isStoneListScrollable = (count: number) => count >= STONE_LIST_MAX_VISIBLE;
 
 function StoneLineItemCard({ item }: { item: OrderLineItemSummary }) {
   const lineTotal = formatMoneyAmount(item.lineTotal ?? item.unitPrice);
@@ -138,23 +137,34 @@ export default function AccountOrderDetailPanel({ order }: AccountOrderDetailPan
   const hasTracking = Boolean(order.tracking?.number || order.tracking?.company);
   const trackingFallback = getOrderShipmentTrackingFallback(order);
   const paymentAmount = formatOrderPaymentAmount(order.payment?.amount);
+  const stoneListScrollable = isStoneListScrollable(order.lineItems.length);
 
   return (
-    <div className="account-order-detail-enter grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-20 xl:gap-24">
-      <div className="account-order-detail-enter__col account-order-detail-enter__col--left space-y-8">
-        <section>
+    <div
+      className={cn(
+        "account-order-detail-enter account-order-detail-panel grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-20 xl:gap-24",
+        stoneListScrollable ? "lg:items-stretch" : "lg:items-start",
+      )}
+    >
+      <div
+        className={cn(
+          "account-order-detail-enter__col account-order-detail-enter__col--left account-order-detail-col account-order-detail-col--left",
+          stoneListScrollable ? "flex min-h-0 flex-col lg:h-full" : "space-y-8",
+        )}
+      >
+        <section className={cn(stoneListScrollable && "account-order-detail-col__stones min-h-0 flex-1")}>
           <DetailSectionLabel>Your Stones</DetailSectionLabel>
           <div
             className={cn(
               "account-order-stone-scroll-wrap",
               SECTION_CONTENT_CLASS,
-              order.lineItems.length > STONE_LIST_MAX_ITEMS && "account-order-stone-scroll-wrap--scrollable",
+              stoneListScrollable && "account-order-stone-scroll-wrap--scrollable",
             )}
           >
             <div
               className={cn(
                 "account-order-stone-scroll",
-                order.lineItems.length > STONE_LIST_MAX_ITEMS && STONE_LIST_MAX_HEIGHT,
+                stoneListScrollable && "account-order-stone-scroll--bounded",
               )}
             >
               <ul className="divide-y divide-neptura-light py-1 pl-3 pr-4 sm:pl-4 sm:pr-5">
@@ -168,7 +178,7 @@ export default function AccountOrderDetailPanel({ order }: AccountOrderDetailPan
           </div>
         </section>
 
-        <section>
+        <section className={cn("account-order-detail-col__tracking shrink-0", stoneListScrollable && "mt-8")}>
           <DetailSectionLabel>Shipment tracking</DetailSectionLabel>
           <DetailCard className={cn(SECTION_INLINE_CLASS, "sm:flex sm:items-center sm:justify-between sm:gap-6")}>
             {hasTracking ? (
@@ -212,7 +222,13 @@ export default function AccountOrderDetailPanel({ order }: AccountOrderDetailPan
         </section>
       </div>
 
-      <aside className="account-order-detail-enter__col account-order-detail-enter__col--right space-y-8">
+      <aside
+        className={cn(
+          "account-order-detail-enter__col account-order-detail-enter__col--right account-order-detail-col account-order-detail-col--right flex flex-col",
+          stoneListScrollable && "min-h-0 lg:h-full",
+        )}
+      >
+        <div className="account-order-detail-col__meta space-y-8">
         <section>
           <DetailSectionLabel>Order summary</DetailSectionLabel>
           <DetailCard className={cn(SECTION_CONTENT_CLASS, "py-2")}>
@@ -262,8 +278,14 @@ export default function AccountOrderDetailPanel({ order }: AccountOrderDetailPan
             </div>
           </section>
         ) : null}
+        </div>
 
-        <div className="space-y-3 pt-2">
+        <div
+          className={cn(
+            "account-order-detail-col__actions shrink-0 space-y-3",
+            stoneListScrollable ? "mt-8 lg:mt-auto lg:pt-8" : "mt-8",
+          )}
+        >
           <AccountOrderBuyAgainButton lineItems={order.lineItems} />
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
