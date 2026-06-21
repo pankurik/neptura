@@ -141,7 +141,7 @@ export default function AccountDeliverySection({ customer }: AccountDeliverySect
           return (
             <article
               key={address.id}
-              className="flex flex-col border border-neptura-light bg-neptura-light-bg p-6 sm:p-7"
+              className="account-canvas-card flex flex-col border border-neptura-light bg-neptura-light-bg p-6 sm:p-7"
             >
               {isPrimary && (
                 <span className="mb-4 inline-block self-start border border-neptura-aurora/20 px-2 py-0.5 text-[0.62rem] uppercase tracking-[0.14em] text-neptura-aurora">
@@ -160,7 +160,7 @@ export default function AccountDeliverySection({ customer }: AccountDeliverySect
                     setEditingAddress(address);
                     setMode("edit");
                   }}
-                  className="text-[0.68rem] font-light uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
+                  className="account-link-action text-[0.68rem] font-light uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
                 >
                   Edit address
                 </button>
@@ -180,7 +180,7 @@ export default function AccountDeliverySection({ customer }: AccountDeliverySect
         <button
           type="button"
           onClick={() => setMode("create")}
-          className="flex min-h-[200px] flex-col items-center justify-center border border-dashed border-neptura-light bg-neptura-light-surface/50 p-8 text-center transition-colors hover:border-neptura-aurora/40 hover:bg-neptura-light-surface/70"
+          className="account-action-btn account-canvas-card account-canvas-card--dashed flex min-h-[200px] flex-col items-center justify-center border border-dashed border-neptura-light bg-neptura-light-surface/50 p-8 text-center"
         >
           <span className="font-display text-2xl font-light text-neptura-light-muted">+</span>
           <span className="mt-2 text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora">
