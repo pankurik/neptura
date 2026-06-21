@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useOptionalNavigation } from "@/context/NavigationContext";
 import { isValidEmail } from "@/lib/customer-auth/email";
 import { buildAuthLoginPath } from "@/lib/customer-auth/return-to";
 
@@ -11,6 +12,8 @@ type AuthEmailFormProps = {
 };
 
 export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" }: AuthEmailFormProps) {
+  const navigation = useOptionalNavigation();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(defaultEmail);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,17 +21,60 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
 
   const emailIsValid = isValidEmail(email);
 
+  function syncEmailFromInput() {
+    const value = inputRef.current?.value ?? "";
+    setEmail((current) => (current === value ? current : value));
+  }
+
+  useEffect(() => {
+    setIsSubmitting(false);
+  }, []);
+
+  useEffect(() => {
+    setEmail(defaultEmail);
+  }, [defaultEmail]);
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
+    }
+
+    input.addEventListener("change", syncEmailFromInput);
+
+    const autofillTimer = window.setInterval(syncEmailFromInput, 200);
+    const stopAutofillTimer = window.setTimeout(() => {
+      window.clearInterval(autofillTimer);
+    }, 2500);
+
+    return () => {
+      input.removeEventListener("change", syncEmailFromInput);
+      window.clearInterval(autofillTimer);
+      window.clearTimeout(stopAutofillTimer);
+    };
+  }, []);
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFieldError(null);
 
-    if (!emailIsValid) {
+    const submittedEmail = (inputRef.current?.value ?? email).trim().toLowerCase();
+
+    if (!isValidEmail(submittedEmail)) {
+      setEmail(submittedEmail);
       setFieldError("Enter email address");
       return;
     }
 
+    setEmail(submittedEmail);
     setIsSubmitting(true);
-    window.location.href = buildAuthLoginPath(returnTo, email.trim().toLowerCase());
+    navigation?.startNavigation();
+
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+    }, 8000);
+
+    window.location.assign(buildAuthLoginPath(returnTo, submittedEmail));
   }
 
   return (
@@ -51,6 +97,7 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
           Email address <span className="text-neptura-aurora">*</span>
         </label>
         <input
+          ref={inputRef}
           id="email"
           name="email"
           type="email"
@@ -62,8 +109,12 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
             setEmail(event.target.value);
             if (fieldError) setFieldError(null);
           }}
+          onInput={syncEmailFromInput}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => {
+            setIsFocused(false);
+            syncEmailFromInput();
+          }}
           aria-invalid={Boolean(fieldError)}
           aria-describedby={fieldError ? "email-error" : undefined}
           className={`w-full border bg-neptura-light-bg px-4 py-3 text-[0.85rem] font-light text-neptura-light-text outline-none transition-colors duration-300 ${
@@ -79,8 +130,11 @@ export default function AuthEmailForm({ returnTo, oauthError, defaultEmail = "" 
 
       <button
         type="submit"
-        disabled={!emailIsValid || isSubmitting}
-        className="btn-light-primary w-full disabled:cursor-not-allowed disabled:opacity-40"
+        disabled={isSubmitting}
+        aria-disabled={!emailIsValid || isSubmitting}
+        className={`btn-light-primary w-full transition-opacity duration-200 disabled:cursor-not-allowed disabled:opacity-40 ${
+          isSubmitting ? "account-action-btn--loading" : ""
+        } ${!emailIsValid && !isSubmitting ? "opacity-50" : "opacity-100"}`}
       >
         {isSubmitting ? "Opening…" : "Continue"}
       </button>
