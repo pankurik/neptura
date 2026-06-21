@@ -2,6 +2,7 @@
 
 import { accountFieldClassName } from "@/lib/account-form-styles";
 import { PHONE_COUNTRIES } from "@/lib/phone/country-codes";
+import { cn } from "@/lib/utils";
 
 type PhoneCountryInputProps = {
   id: string;
@@ -29,7 +30,10 @@ export default function PhoneCountryInput({
         aria-label="Country code"
         value={countryCode}
         onChange={(event) => onCountryCodeChange(event.target.value)}
-        className={`${accountFieldClassName} w-[7.5rem] shrink-0 border-r-0 pr-2 text-[0.78rem]`}
+        className={cn(
+          accountFieldClassName,
+          "w-[7.5rem] shrink-0 border-r-0 pr-2 text-[0.78rem]",
+        )}
       >
         {PHONE_COUNTRIES.map((country) => (
           <option key={`${country.iso}-${country.dialCode}`} value={country.dialCode}>
@@ -45,7 +49,7 @@ export default function PhoneCountryInput({
         autoComplete="tel-national"
         inputMode="tel"
         placeholder={placeholder}
-        className={`${accountFieldClassName} min-w-0 flex-1 border-l-0`}
+        className={cn(accountFieldClassName, "min-w-0 flex-1 border-l-0")}
       />
     </div>
   );
