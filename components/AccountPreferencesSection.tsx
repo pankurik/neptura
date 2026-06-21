@@ -284,7 +284,7 @@ export default function AccountPreferencesSection({
           <p className="text-[0.75rem] leading-relaxed text-neptura-light-muted">{success}</p>
         )}
 
-        <button type="submit" disabled={isSubmitting} className="btn-light-primary disabled:opacity-60">
+        <button type="submit" disabled={isSubmitting} className={`btn-light-primary disabled:opacity-60 ${isSubmitting ? "account-action-btn--loading" : ""}`}>
           {isSubmitting ? "Saving…" : "Save preferences"}
         </button>
       </form>
