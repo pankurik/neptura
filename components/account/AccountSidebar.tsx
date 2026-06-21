@@ -47,7 +47,7 @@ function buildNavItems(customer: CustomerSummary, orders: OrderSummary[]): NavIt
 }
 
 const signOutLinkClassName =
-  "block w-full border border-neptura-ice/20 py-2.5 text-center text-[0.62rem] font-light uppercase tracking-[0.14em] text-neptura-ice transition-colors hover:border-neptura-ice/35 hover:text-neptura-diamond";
+  "account-action-btn block w-full border border-neptura-ice/20 py-2.5 text-center text-[0.62rem] font-light uppercase tracking-[0.14em] text-neptura-ice transition-colors hover:border-neptura-ice/35 hover:text-neptura-diamond";
 
 function NavLinks({
   items,
@@ -70,8 +70,9 @@ function NavLinks({
             <li key={item.id}>
               <button
                 type="button"
+                aria-current={isActive ? "true" : undefined}
                 onClick={() => onNavigate(item.id)}
-                className={`flex w-full items-baseline gap-1 border-l-2 py-2.5 pl-4 pr-2 text-left text-[0.68rem] font-normal uppercase tracking-nav transition-colors ${
+                className={`account-sidebar-nav flex w-full items-baseline gap-1 border-l-2 py-2.5 pl-4 pr-2 text-left text-[0.68rem] font-normal uppercase tracking-nav ${
                   isActive
                     ? "border-neptura-aurora text-neptura-diamond"
                     : "border-transparent text-neptura-ice hover:text-neptura-silver"
