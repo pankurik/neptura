@@ -155,7 +155,7 @@ export default function AccountPhoneSection({
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="submit" disabled={isSubmitting} className="btn-light-primary flex-1 disabled:opacity-60">
+            <button type="submit" disabled={isSubmitting} className={`btn-light-primary flex-1 disabled:opacity-60 ${isSubmitting ? "account-action-btn--loading" : ""}`}>
               {isSubmitting ? "Saving…" : "Save phone"}
             </button>
             <button
