@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { ordersToolbarControlClass } from "@/components/account/AccountOrdersViewToggle";
+import { cn } from "@/lib/utils";
 
 type SortMenuOption = {
   id: string;
@@ -67,19 +69,28 @@ export default function AccountOrdersSortMenu({
   };
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    <div ref={rootRef} className="relative flex shrink-0 items-center">
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
         onClick={() => setOpen((isOpen) => !isOpen)}
-        className={`neptura-select-toolbar${value ? " neptura-select-toolbar--active" : ""}${
-          open ? " neptura-select-toolbar--open" : ""
-        }`}
+        className={cn(
+          ordersToolbarControlClass(value !== "" || open),
+          "gap-1",
+        )}
       >
         <span>{displayLabel}</span>
-        <svg aria-hidden viewBox="0 0 8 5" className="neptura-select-toolbar-chevron" fill="currentColor">
+        <svg
+          aria-hidden
+          viewBox="0 0 8 5"
+          className={cn(
+            "h-[0.45rem] w-[0.45rem] shrink-0 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          fill="currentColor"
+        >
           <path d="M0 0 4 5 8 0" />
         </svg>
       </button>
