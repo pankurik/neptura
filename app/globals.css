@@ -899,6 +899,307 @@
   }
 }
 
+.account-order-stone-scroll-wrap {
+  position: relative;
+  border: 1px solid var(--neptura-light-border);
+  background: var(--neptura-light-bg);
+}
+
+.account-order-stone-scroll-wrap::before,
+.account-order-stone-scroll-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.25rem;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.account-order-stone-scroll-wrap::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--neptura-light-bg) 15%,
+    color-mix(in srgb, var(--neptura-light-bg) 0%, transparent)
+  );
+}
+
+.account-order-stone-scroll-wrap::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--neptura-light-bg) 15%,
+    color-mix(in srgb, var(--neptura-light-bg) 0%, transparent)
+  );
+}
+
+.account-order-stone-scroll {
+  direction: rtl;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--neptura-aurora) 55%, transparent) transparent;
+}
+
+.account-order-stone-scroll > * {
+  direction: ltr;
+}
+
+.account-order-stone-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+
+.account-order-stone-scroll::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+.account-order-stone-scroll::-webkit-scrollbar-track {
+  margin: 0.85rem 0;
+  background: color-mix(in srgb, var(--neptura-aurora) 10%, transparent);
+}
+
+.account-order-stone-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--neptura-aurora) 38%, transparent);
+  min-height: 3rem;
+  transition: background 180ms ease;
+}
+
+.account-order-stone-scroll:hover::-webkit-scrollbar-thumb,
+.account-order-stone-scroll:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--neptura-aurora) 72%, transparent);
+}
+
+.account-order-stone-scroll-wrap:hover .account-order-stone-scroll::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--neptura-aurora) 16%, transparent);
+}
+
+.account-order-stone-scroll-wrap:not(.account-order-stone-scroll-wrap--scrollable)::before,
+.account-order-stone-scroll-wrap:not(.account-order-stone-scroll-wrap--scrollable)::after {
+  display: none;
+}
+
+.account-action-btn {
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease,
+    transform 160ms var(--neptura-ease-out-expo),
+    opacity 220ms ease;
+}
+
+@media (hover: hover) {
+  .account-action-btn:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--neptura-aurora) 55%, var(--neptura-light-border));
+    color: var(--neptura-aurora);
+    background-color: color-mix(in srgb, var(--neptura-aurora) 6%, transparent);
+  }
+}
+
+.account-action-btn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.account-action-btn:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--neptura-aurora) 65%, transparent);
+  outline-offset: 2px;
+}
+
+.account-action-btn--loading {
+  border-color: color-mix(in srgb, var(--neptura-aurora) 70%, var(--neptura-light-border));
+  animation: account-action-btn-loading 1.4s ease-in-out infinite;
+}
+
+.account-action-btn--success {
+  border-color: var(--neptura-aurora);
+  color: var(--neptura-aurora);
+  background-color: color-mix(in srgb, var(--neptura-aurora) 10%, transparent);
+}
+
+@keyframes account-action-btn-loading {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.account-order-detail-enter__col {
+  opacity: 0;
+  animation: account-order-detail-rise 0.72s var(--neptura-ease-out-expo) forwards;
+}
+
+.account-order-detail-enter__col--left {
+  animation-delay: 0.1s;
+}
+
+.account-order-detail-enter__col--right {
+  animation-delay: 0.22s;
+}
+
+.account-order-detail-enter__nav {
+  opacity: 0;
+  animation: account-order-detail-rise 0.65s var(--neptura-ease-out-expo) 0.34s forwards;
+}
+
+@keyframes account-order-detail-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.account-order-progress-track {
+  position: absolute;
+  top: 0.3125rem;
+  left: 50%;
+  z-index: 0;
+  height: 1px;
+  width: 100%;
+  transform: translateY(-50%);
+}
+
+.account-order-progress-track--complete {
+  background-color: var(--neptura-aurora);
+  transform: translateY(-50%) scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  animation: account-order-progress-draw var(--progress-line-duration, 640ms)
+    var(--neptura-ease-out-expo) forwards;
+  animation-delay: var(--progress-draw-delay, 0ms);
+}
+
+.account-order-progress-track--pending {
+  background-color: color-mix(in srgb, var(--neptura-diamond) 55%, transparent);
+  opacity: 0;
+  animation: account-order-progress-pending-in 0.5s var(--neptura-ease-out-expo) forwards;
+  animation-delay: var(--progress-draw-delay, 0ms);
+}
+
+.account-order-progress-dot {
+  position: relative;
+  z-index: 1;
+  height: 0.625rem;
+  width: 0.625rem;
+  border-radius: 9999px;
+}
+
+.account-order-progress-dot--reveal {
+  opacity: 0;
+  transform: scale(0.72);
+  will-change: transform, opacity;
+  animation: account-order-progress-dot-in var(--progress-dot-duration, 360ms)
+    var(--neptura-ease-out-expo) forwards;
+  animation-delay: var(--progress-step-delay, 0ms);
+}
+
+.account-order-progress-copy--reveal {
+  opacity: 0;
+  animation: account-order-progress-copy-in 0.45s var(--neptura-ease-out-expo) forwards;
+  animation-delay: var(--progress-step-delay, 0ms);
+}
+
+.account-order-progress-dot-pulse {
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--neptura-aurora) 90%, transparent);
+  animation: account-order-progress-dot-pulse 2.6s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+.account-order-progress-dot-pulse--outer {
+  inset: -3px;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--neptura-aurora) 45%, transparent);
+}
+
+.account-order-progress-label-pulse {
+  animation: account-order-progress-label-pulse 2.6s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+
+@keyframes account-order-progress-draw {
+  0% {
+    transform: translateY(-50%) scaleX(0);
+  }
+
+  100% {
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+@keyframes account-order-progress-pending-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes account-order-progress-dot-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes account-order-progress-copy-in {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes account-order-progress-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes account-order-progress-label-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    color: var(--neptura-aurora);
+  }
+
+  50% {
+    opacity: 0.78;
+    color: color-mix(in srgb, var(--neptura-diamond) 65%, var(--neptura-aurora));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-neptura-twinkle,
   .animate-neptura-diamond-enter,
@@ -914,6 +1215,48 @@
   .auth-enter,
   .auth-universe-word,
   .auth-form-opening {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .account-order-progress-track--complete {
+    animation: none !important;
+    transform: translateY(-50%) scaleX(1) !important;
+  }
+
+  .account-order-progress-track--pending {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .account-order-progress-dot--reveal,
+  .account-order-progress-copy--reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .account-order-progress-dot-pulse {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .account-order-progress-label-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    color: var(--neptura-aurora) !important;
+  }
+
+  .account-action-btn,
+  .account-action-btn--loading,
+  .account-action-btn--success {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .account-order-detail-enter__col,
+  .account-order-detail-enter__nav {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
