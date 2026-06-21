@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
+import { NavigationProvider } from "@/context/NavigationContext";
 import CartDrawer from "@/components/CartDrawer";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
@@ -34,9 +36,13 @@ export default function RootLayout({
         className={`${cormorant.variable} ${inter.variable} bg-neptura-light-bg font-sans text-neptura-light-text antialiased`}
       >
         <CartProvider>
-          <Navbar />
-          <CartDrawer />
-          <main>{children}</main>
+          <Suspense fallback={null}>
+            <NavigationProvider>
+              <Navbar />
+              <CartDrawer />
+              <main aria-live="polite">{children}</main>
+            </NavigationProvider>
+          </Suspense>
         </CartProvider>
       </body>
     </html>
