@@ -39,8 +39,8 @@ export default async function AccountOrdersPage() {
         {orders.length > 0 ? (
           <>
             <AccountOrdersPanel orders={orders} summary={summary} />
-            <AccountOrdersSupport className="mt-8" />
-            <AccountSubpageNav backHref="/account#stones" className="mt-8" />
+            <AccountOrdersSupport className="account-page-enter account-page-enter--2 mt-8" />
+            <AccountSubpageNav backHref="/account#stones" className="account-page-enter account-page-enter--3 mt-8" />
           </>
         ) : (
           <>
