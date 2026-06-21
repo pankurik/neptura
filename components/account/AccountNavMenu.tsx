@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import AccountSignOutLink from "@/components/account/AccountSignOutLink";
 import CustomerAvatar from "@/components/CustomerAvatar";
 import { getCustomerFullName } from "@/lib/customer-auth/display";
 import type { CustomerSummary } from "@/lib/customer-auth/types";
@@ -98,13 +99,10 @@ export function AccountNavMenuLinks({
       ))}
       {showSignOut ? (
         <li className={items.length > 0 ? "border-t border-neptura-light/40 pt-1" : undefined}>
-          <Link
-            href="/api/auth/logout?returnTo=/login"
+          <AccountSignOutLink
             className={menuItemClass(isLightNav)}
-            onClick={onNavigate}
-          >
-            Sign out
-          </Link>
+            onNavigate={onNavigate}
+          />
         </li>
       ) : null}
     </ul>
@@ -126,7 +124,7 @@ export default function AccountNavMenu({
   const setOpen = onOpenChange ?? setUncontrolledOpen;
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLAnchorElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const menuId = useId();
@@ -207,6 +205,11 @@ export default function AccountNavMenu({
     onNavigate?.();
   }
 
+  function handleTriggerClick() {
+    setOpen(false);
+    onNavigate?.();
+  }
+
   const menuPanel = open && menuPosition ? (
     <div
       ref={menuRef}
@@ -274,14 +277,10 @@ export default function AccountNavMenu({
             isLightNav ? "border-neptura-light/30" : "border-neptura-ice/10",
           )}
         >
-          <Link
-            href="/api/auth/logout?returnTo=/login"
-            role="menuitem"
+          <AccountSignOutLink
             className={menuItemClass(isLightNav)}
-            onClick={handleNavigate}
-          >
-            Sign out
-          </Link>
+            onNavigate={handleNavigate}
+          />
         </div>
       </div>
     </div>
@@ -294,18 +293,19 @@ export default function AccountNavMenu({
       onMouseEnter={openMenu}
       onMouseLeave={scheduleClose}
     >
-      <button
+      <Link
         ref={triggerRef}
-        type="button"
+        href="/account"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        aria-label="Your account menu"
+        aria-label="Your account"
         className={cn(
           className,
           "account-nav-menu-trigger inline-flex items-center gap-1.5 transition-opacity duration-200",
           open && "opacity-100",
         )}
+        onClick={handleTriggerClick}
         onFocus={openMenu}
         onBlur={scheduleClose}
       >
@@ -316,7 +316,7 @@ export default function AccountNavMenu({
           shape="circle"
           variant={avatarVariant}
         />
-      </button>
+      </Link>
 
       {typeof document !== "undefined" && menuPanel
         ? createPortal(menuPanel, document.body)
