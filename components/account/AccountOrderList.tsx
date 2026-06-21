@@ -219,6 +219,5 @@ export default function AccountOrderList({
   );
 }
 
-export const STONES_PREVIEW_LIMIT = 6;
 export const ORDERS_LOAD_MORE_INITIAL = 6;
 export const ORDERS_LOAD_MORE_STEP = 6;
