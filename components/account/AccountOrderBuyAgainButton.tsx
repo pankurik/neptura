@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 
 type AccountOrderBuyAgainButtonProps = {
   lineItems: OrderLineItemSummary[];
+  compact?: boolean;
 };
 
 export default function AccountOrderBuyAgainButton({
   lineItems,
+  compact = false,
 }: AccountOrderBuyAgainButtonProps) {
   const { addLinesToCart, isLoading } = useCart();
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,8 @@ export default function AccountOrderBuyAgainButton({
         onClick={handleBuyAgain}
         disabled={disabled}
         className={cn(
-          "btn-light-secondary account-action-btn block w-full text-center",
+          "btn-light-secondary account-action-btn w-full text-center",
+          compact ? "px-3 py-2 text-[0.62rem]" : "block",
           busy && "account-action-btn--loading",
           succeeded && "account-action-btn--success",
           disabled && !busy && "cursor-not-allowed opacity-50",
@@ -59,7 +62,7 @@ export default function AccountOrderBuyAgainButton({
       >
         {label}
       </button>
-      {error ? (
+      {!compact && error ? (
         <p className="mt-2 text-center text-[0.72rem] font-light text-neptura-light-muted">
           {error}
         </p>
