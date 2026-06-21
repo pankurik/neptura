@@ -211,6 +211,8 @@
 
   .account-subpage-hero {
     --account-subpage-hero-fade: 4rem;
+    position: relative;
+    overflow: hidden;
     background-color: var(--neptura-neptune);
     background-image: linear-gradient(
         to bottom,
@@ -232,6 +234,212 @@
 
   .account-subpage-hero--compact {
     --account-subpage-hero-fade: 3.5rem;
+  }
+
+  .account-subpage-hero-aurora-field {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .account-subpage-hero-system {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .account-subpage-hero-system--left {
+    top: 30%;
+    left: 4%;
+    width: 155px;
+    height: 155px;
+    opacity: 0.62;
+  }
+
+  .account-subpage-hero-system--right {
+    top: 34%;
+    left: 58%;
+    width: 215px;
+    height: 215px;
+  }
+
+  .account-subpage-hero-system--far {
+    top: 26%;
+    right: -7%;
+    width: 270px;
+    height: 230px;
+    opacity: 0.48;
+  }
+
+  .account-subpage-hero-aurora__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border: 0.5px solid rgba(74, 144, 164, 0.1);
+    animation: aurora-ring-drift 32s ease-in-out infinite;
+  }
+
+  .account-subpage-hero-aurora__ring--110 {
+    width: 110%;
+    height: 110%;
+    margin-top: -55%;
+    margin-left: -55%;
+    animation-delay: -8s;
+  }
+
+  .account-subpage-hero-aurora__ring--125 {
+    width: 125%;
+    height: 125%;
+    margin-top: -62.5%;
+    margin-left: -62.5%;
+    animation-delay: -16s;
+  }
+
+  .account-subpage-hero-aurora__halo {
+    position: absolute;
+    inset: -12%;
+    background: radial-gradient(
+      ellipse 90% 80% at 55% 45%,
+      color-mix(in srgb, var(--neptura-aurora) 22%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-violet) 9%, transparent) 42%,
+      transparent 72%
+    );
+    filter: blur(32px);
+    animation: aurora-orb-drift 36s ease-in-out infinite;
+    animation-delay: -14s;
+  }
+
+  .account-subpage-hero-aurora__halo--violet {
+    background: radial-gradient(
+      ellipse 88% 78% at 48% 42%,
+      color-mix(in srgb, var(--neptura-violet) 20%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-ice) 12%, transparent) 40%,
+      transparent 72%
+    );
+    filter: blur(28px);
+    animation: aurora-orb-drift-alt 42s ease-in-out infinite;
+    animation-delay: -21s;
+  }
+
+  .account-subpage-hero-aurora__halo--wide {
+    inset: -8%;
+    background: radial-gradient(
+      ellipse 80% 70% at 38% 48%,
+      color-mix(in srgb, var(--neptura-aurora) 16%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-violet) 8%, transparent) 38%,
+      transparent 72%
+    );
+    filter: blur(40px);
+    animation: aurora-orb-drift 50s ease-in-out infinite;
+    animation-delay: -28s;
+  }
+
+  .account-subpage-hero-aurora__core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    filter: blur(16px);
+    animation: aurora-orb-drift 36s ease-in-out infinite;
+  }
+
+  .account-subpage-hero-aurora__core--planet {
+    background: radial-gradient(
+      circle at 38% 35%,
+      color-mix(in srgb, var(--neptura-aurora) 62%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-neptune) 55%, transparent) 28%,
+      color-mix(in srgb, var(--neptura-deep) 35%, transparent) 48%,
+      transparent 72%
+    );
+  }
+
+  .account-subpage-hero-aurora__core--sm {
+    width: 96px;
+    height: 96px;
+    margin-top: -48px;
+    margin-left: -48px;
+    filter: blur(14px);
+    animation: aurora-orb-drift-alt 40s ease-in-out infinite;
+    animation-delay: -6s;
+  }
+
+  .account-subpage-hero-aurora__core--lg {
+    width: 128px;
+    height: 128px;
+    margin-top: -64px;
+    margin-left: -64px;
+    filter: blur(18px);
+  }
+
+  .account-subpage-hero-aurora__core--xl {
+    width: 168px;
+    height: 148px;
+    margin-top: -74px;
+    margin-left: -84px;
+    filter: blur(22px);
+    animation: aurora-orb-drift-alt 48s ease-in-out infinite;
+    animation-delay: -18s;
+  }
+
+  .account-subpage-hero-aurora__moon {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 36% 32%,
+      color-mix(in srgb, var(--neptura-ice) 55%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-aurora) 22%, transparent) 42%,
+      transparent 72%
+    );
+    filter: blur(7px);
+    animation: aurora-orb-drift 44s ease-in-out infinite;
+  }
+
+  .account-subpage-hero-aurora__moon--xs {
+    width: 22px;
+    height: 22px;
+    filter: blur(5px);
+    opacity: 0.75;
+  }
+
+  .account-subpage-hero-aurora__moon--ne {
+    top: 2%;
+    right: 6%;
+    animation-delay: -11s;
+  }
+
+  .account-subpage-hero-aurora__moon--sw {
+    bottom: 8%;
+    left: 2%;
+    animation: aurora-orb-drift-alt 46s ease-in-out infinite;
+    animation-delay: -23s;
+  }
+
+  .account-subpage-hero-aurora__moon--e {
+    top: 40%;
+    right: -4%;
+    animation-delay: -9s;
+  }
+
+  .account-subpage-hero-aurora__moon--se {
+    bottom: 6%;
+    right: 10%;
+    animation: aurora-orb-drift-alt 38s ease-in-out infinite;
+    animation-delay: -17s;
+  }
+
+  .account-subpage-hero-aurora__moon--n {
+    top: -2%;
+    left: 42%;
+    background: radial-gradient(
+      circle at 36% 32%,
+      color-mix(in srgb, var(--neptura-violet) 40%, transparent) 0%,
+      color-mix(in srgb, var(--neptura-aurora) 16%, transparent) 42%,
+      transparent 72%
+    );
+    animation-delay: -29s;
   }
 
   .neptura-input-underline {
@@ -620,6 +828,57 @@
   }
 }
 
+@keyframes aurora-ring-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(6px, -8px) rotate(0.5deg);
+  }
+  40% {
+    transform: translate(-4px, -12px) rotate(-0.5deg);
+  }
+  60% {
+    transform: translate(-10px, -5px) rotate(0.25deg);
+  }
+  80% {
+    transform: translate(4px, -3px) rotate(-0.25deg);
+  }
+}
+
+@keyframes aurora-orb-drift-alt {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  33% {
+    transform: translate(-9px, 7px) scale(1.04);
+    opacity: 0.78;
+  }
+  66% {
+    transform: translate(7px, -5px) scale(0.96);
+    opacity: 0.88;
+  }
+}
+
+@keyframes aurora-orb-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  33% {
+    transform: translate(10px, -8px) scale(1.05);
+    opacity: 0.82;
+  }
+  66% {
+    transform: translate(-8px, 6px) scale(0.97);
+    opacity: 0.9;
+  }
+}
+
 @keyframes auth-universe-shimmer {
   0%,
   100% {
@@ -647,6 +906,10 @@
   .animate-neptura-particle-drift,
   .animate-neptura-fade-up,
   .hero-scroll-cue,
+  .account-subpage-hero-aurora__core,
+  .account-subpage-hero-aurora__halo,
+  .account-subpage-hero-aurora__ring,
+  .account-subpage-hero-aurora__moon,
   .auth-heading-universe,
   .auth-enter,
   .auth-universe-word,
