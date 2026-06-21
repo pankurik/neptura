@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useOptionalNavigation } from "@/context/NavigationContext";
 
 type WishlistToggleProps = {
   handle: string;
@@ -16,6 +17,7 @@ export default function WishlistToggle({
   className = "",
 }: WishlistToggleProps) {
   const router = useRouter();
+  const navigation = useOptionalNavigation();
   const [saved, setSaved] = useState(initialSaved);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export default function WishlistToggle({
       const payload = (await response.json()) as { error?: string };
 
       if (response.status === 401) {
+        navigation?.startNavigation();
         router.push(`/login?returnTo=${encodeURIComponent(`/products/${handle}`)}`);
         return;
       }
@@ -61,7 +64,9 @@ export default function WishlistToggle({
         type="button"
         onClick={handleToggle}
         disabled={isUpdating}
-        className="w-full border border-neptura-light py-4 text-xs uppercase tracking-[0.25em] text-neptura-light-text transition hover:border-neptura-aurora/40 hover:text-neptura-aurora disabled:cursor-not-allowed disabled:opacity-50"
+        className={`w-full border border-neptura-light py-4 text-xs uppercase tracking-[0.25em] text-neptura-light-text transition hover:border-neptura-aurora/40 hover:text-neptura-aurora disabled:cursor-not-allowed disabled:opacity-50 ${
+          isUpdating ? "account-action-btn--loading" : ""
+        }`}
       >
         {isUpdating ? "Saving…" : saved ? "Saved to wishlist" : "Save to wishlist"}
       </button>
