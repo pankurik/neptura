@@ -22,7 +22,7 @@ export default function AccountSubpageNav({
     >
       <Link
         href={backHref}
-        className="text-[0.72rem] uppercase tracking-[0.14em] text-neptura-light-muted transition-colors hover:text-neptura-light-text"
+        className="text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
       >
         ← {backLabel}
       </Link>
