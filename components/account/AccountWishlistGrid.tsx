@@ -57,7 +57,7 @@ export default function AccountWishlistGrid({ products }: AccountWishlistGridPro
           return (
             <article
               key={product.handle}
-              className="flex flex-col border border-neptura-light bg-neptura-light-bg"
+              className="account-order-gallery-card group flex flex-col border border-neptura-light bg-neptura-light-bg"
             >
               <Link href={`/products/${product.handle}`} className="group relative aspect-product overflow-hidden bg-neptura-light-surface">
                 {product.featuredImage ? (
@@ -66,7 +66,7 @@ export default function AccountWishlistGrid({ products }: AccountWishlistGridPro
                     alt={product.featuredImage.altText ?? product.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover transition duration-700 ease-out-expo group-hover:scale-105"
+                    className="account-order-gallery-card__image object-cover transition duration-700 ease-out-expo group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-neptura-light-muted">
