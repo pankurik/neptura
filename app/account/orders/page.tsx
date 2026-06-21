@@ -13,6 +13,8 @@ export const metadata = {
   description: "Your full Neptura order history.",
 };
 
+const ORDERS_CONTENT_CLASS = "mx-auto w-full max-w-7xl px-6 md:px-10 lg:px-12";
+
 export default async function AccountOrdersPage() {
   const accessToken = readCustomerAccessToken();
 
@@ -25,9 +27,15 @@ export default async function AccountOrdersPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-neptura-light-bg">
-      <AccountSubpageHero label="Your collection" title="All Orders" compact gradient />
+      <AccountSubpageHero
+        label="Your collection"
+        title="All Orders"
+        compact
+        gradient
+        contentClassName={ORDERS_CONTENT_CLASS}
+      />
 
-      <div className="mx-auto w-full max-w-4xl flex-1 px-6 pb-16 pt-6 md:px-10 md:pt-8 lg:px-12">
+      <div className={`${ORDERS_CONTENT_CLASS} flex-1 pb-16 pt-6 md:pt-8`}>
         {orders.length > 0 ? (
           <>
             <AccountOrdersPanel orders={orders} summary={summary} />
@@ -45,7 +53,7 @@ export default async function AccountOrdersPage() {
                   When you place an order, it will appear here with tracking and details.
                 </p>
               </div>
-              <div className="px-6 py-10 text-center">
+              <div className="py-10 text-center">
                 <Link
                   href="/shop"
                   className="inline-block text-[0.72rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
