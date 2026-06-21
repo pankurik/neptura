@@ -87,6 +87,7 @@ export interface CartContextValue {
   isLoading: boolean;
   checkoutUrl: string | null;
   addToCart: (variantId: string, quantity?: number) => Promise<void>;
+  addLinesToCart: (lines: { merchandiseId: string; quantity: number }[]) => Promise<void>;
   updateLineQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeFromCart: (lineId: string) => Promise<void>;
   openCart: () => void;
