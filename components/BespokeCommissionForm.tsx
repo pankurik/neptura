@@ -220,7 +220,9 @@ export default function BespokeCommissionForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full btn-dark-primary text-center transition duration-300 hover:opacity-90 active:opacity-100 disabled:opacity-60"
+          className={`w-full btn-dark-primary text-center transition duration-300 hover:opacity-90 active:opacity-100 disabled:opacity-60 ${
+            isSubmitting ? "account-action-btn--loading" : ""
+          }`}
         >
           {isSubmitting ? "Submitting…" : "Submit Commission request"}
         </button>
