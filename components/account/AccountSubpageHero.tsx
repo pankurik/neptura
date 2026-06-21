@@ -17,6 +17,7 @@ type AccountSubpageHeroProps = {
   gradient?: boolean;
   statusBadge?: string;
   footer?: ReactNode;
+  contentClassName?: string;
 };
 
 export default function AccountSubpageHero({
@@ -28,6 +29,7 @@ export default function AccountSubpageHero({
   gradient = false,
   statusBadge,
   footer,
+  contentClassName,
 }: AccountSubpageHeroProps) {
   const contentPadding = compact
     ? gradient
@@ -101,7 +103,12 @@ export default function AccountSubpageHero({
         </>
       ) : null}
 
-      <div className="relative mx-auto max-w-4xl px-6 md:px-10 lg:px-12">
+      <div
+        className={cn(
+          "relative",
+          contentClassName ?? "mx-auto max-w-4xl px-6 md:px-10 lg:px-12",
+        )}
+      >
         {footer ? (
           <div className="relative z-[1]">
             {label ? (
