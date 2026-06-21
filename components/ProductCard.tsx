@@ -13,7 +13,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group flex flex-col overflow-hidden bg-neptura-light-bg border border-neptura-light transition-colors duration-300 hover:border-neptura-aurora/30"
+      className="group flex flex-col overflow-hidden border border-neptura-light bg-neptura-light-bg transition-[border-color,opacity] duration-300 hover:border-neptura-aurora/30"
     >
       {/* Aspect Ratio 3:4 Image Container */}
       <div className="relative aspect-product overflow-hidden bg-neptura-light-surface select-none">
