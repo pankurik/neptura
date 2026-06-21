@@ -1078,6 +1078,83 @@
   }
 }
 
+.account-page-enter {
+  opacity: 0;
+  animation: account-order-detail-rise 0.72s var(--neptura-ease-out-expo) forwards;
+}
+
+.account-page-enter--0 {
+  animation-delay: 0.04s;
+}
+
+.account-page-enter--1 {
+  animation-delay: 0.1s;
+}
+
+.account-page-enter--2 {
+  animation-delay: 0.16s;
+}
+
+.account-page-enter--3 {
+  animation-delay: 0.22s;
+}
+
+.account-page-enter--4 {
+  animation-delay: 0.28s;
+}
+
+.account-page-enter--5 {
+  animation-delay: 0.34s;
+}
+
+.account-page-enter--6 {
+  animation-delay: 0.4s;
+}
+
+.account-link-action {
+  display: inline-block;
+  transition:
+    color 0.25s ease,
+    transform 0.35s var(--neptura-ease-out-expo);
+}
+
+@media (hover: hover) {
+  .account-link-action:hover {
+    transform: translateX(2px);
+  }
+}
+
+.account-sidebar-nav {
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.35s var(--neptura-ease-out-expo);
+}
+
+@media (hover: hover) {
+  .account-sidebar-nav:hover:not([aria-current="true"]) {
+    transform: translateX(3px);
+  }
+}
+
+.account-canvas-card {
+  transition:
+    border-color 0.35s var(--neptura-ease-out-expo),
+    background-color 0.35s var(--neptura-ease-out-expo),
+    transform 0.45s var(--neptura-ease-out-expo);
+}
+
+@media (hover: hover) {
+  .account-canvas-card:hover {
+    border-color: rgba(74, 144, 164, 0.42);
+    transform: translateY(-2px);
+  }
+
+  .account-canvas-card--dashed:hover {
+    background-color: rgba(240, 248, 255, 0.72);
+  }
+}
+
 .account-order-gallery-card {
   transition:
     border-color 0.35s var(--neptura-ease-out-expo),
@@ -1350,6 +1427,16 @@
   .account-order-list-row__thumb {
     transition: none !important;
     transform: none !important;
+  }
+
+  .account-page-enter,
+  .account-link-action,
+  .account-sidebar-nav,
+  .account-canvas-card {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 
   .account-order-detail-enter__col,
