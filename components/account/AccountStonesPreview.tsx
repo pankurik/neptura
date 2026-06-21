@@ -54,7 +54,7 @@ export default function AccountStonesPreview({ orders }: AccountStonesPreviewPro
       {hasMoreOrders ? (
         <Link
           href="/account/orders"
-          className="mt-4 block w-full border border-neptura-light bg-neptura-light-bg py-3 text-center text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:border-neptura-aurora/35 hover:text-neptura-light-text"
+          className="account-action-btn mt-4 block w-full border border-neptura-light bg-neptura-light-bg py-3 text-center text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
         >
           Show all orders
         </Link>
