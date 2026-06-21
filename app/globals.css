@@ -1078,6 +1078,40 @@
   }
 }
 
+.neptura-nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 120;
+  height: 2px;
+  background: var(--neptura-aurora);
+  pointer-events: none;
+  transition:
+    width 0.35s var(--neptura-ease-out-expo),
+    opacity 0.35s ease;
+}
+
+.neptura-page-enter {
+  animation: neptura-page-enter 0.55s var(--neptura-ease-out-expo) both;
+}
+
+@keyframes neptura-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+a[data-nav-pending="true"] {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
 .account-nav-menu-item {
   transition:
     color 0.25s ease,
@@ -1455,10 +1489,19 @@
   .account-sidebar-nav,
   .account-canvas-card,
   .account-nav-menu-item,
-  .account-nav-menu-trigger {
+  .account-nav-menu-trigger,
+  .neptura-page-enter {
     animation: none !important;
     transition: none !important;
     transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .neptura-nav-progress {
+    transition: none !important;
+  }
+
+  a[data-nav-pending="true"] {
     opacity: 1 !important;
   }
 
