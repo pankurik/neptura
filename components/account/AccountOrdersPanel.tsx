@@ -111,7 +111,7 @@ export default function AccountOrdersPanel({ orders, summary }: AccountOrdersPan
         onClick={() =>
           setVisibleCount((count) => Math.min(count + ORDERS_LOAD_MORE_STEP, filteredOrders.length))
         }
-        className="w-full py-2 text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
+        className="account-action-btn w-full py-2 text-[0.68rem] uppercase tracking-[0.14em] text-neptura-aurora transition-colors hover:text-neptura-light-text"
       >
         Load more
         {remaining > ORDERS_LOAD_MORE_STEP
@@ -122,7 +122,7 @@ export default function AccountOrdersPanel({ orders, summary }: AccountOrdersPan
   ) : null;
 
   return (
-    <div className="border border-neptura-light bg-neptura-light-bg">
+    <div className="account-page-enter account-page-enter--1 border border-neptura-light bg-neptura-light-bg">
       <div className={`space-y-4 py-4 sm:py-5 ${PANEL_INSET}`}>
         {filterMeta ? (
           <p className="text-[0.68rem] font-light text-neptura-light-muted">{filterMeta}</p>
