@@ -31,11 +31,8 @@ function OrderCard({ order }: { order: OrderSummary }) {
   const itemLabel = `${pieces} ${pieces === 1 ? "item" : "items"}`;
 
   return (
-    <article className="w-full border border-neptura-light bg-neptura-light-bg">
-      <Link
-        href={orderDetailPath(order.id)}
-        className="group flex items-start gap-3 p-3 transition-colors hover:bg-neptura-light-surface/50"
-      >
+    <article className="account-order-gallery-card group w-full border border-neptura-light bg-neptura-light-bg">
+      <Link href={orderDetailPath(order.id)} className="flex items-start gap-3 p-3">
         <div className="relative aspect-[3/4] w-11 shrink-0 overflow-hidden bg-neptura-light-surface sm:w-12">
           {preview?.imageUrl ? (
             <Image
@@ -43,7 +40,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
               alt={preview.imageAlt ?? preview.title}
               fill
               sizes="48px"
-              className="object-cover"
+              className="account-order-gallery-card__image object-cover"
             />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-neptura-aurora/45">
@@ -54,7 +51,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <span className="font-display text-[0.95rem] font-light leading-none text-neptura-light-text">
+            <span className="font-display text-[0.95rem] font-light leading-none text-neptura-light-text transition-colors duration-300 group-hover:text-neptura-aurora">
               {order.name}
             </span>
             <span className="shrink-0 border border-neptura-aurora/20 px-1.5 py-px text-[0.54rem] font-normal uppercase tracking-[0.12em] text-neptura-aurora">
