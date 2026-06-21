@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import AccountSignOutLink from "@/components/account/AccountSignOutLink";
 import AccountCosmicBackdrop from "@/components/account/AccountCosmicBackdrop";
 import CustomerAvatar from "@/components/CustomerAvatar";
 import { formatMemberSince, getCustomerFullName } from "@/lib/customer-auth/display";
@@ -136,9 +136,7 @@ export default function AccountSidebar({
           />
 
           <div className="mt-auto pt-6">
-            <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
-              Sign out
-            </Link>
+            <AccountSignOutLink className={signOutLinkClassName} />
           </div>
         </div>
       </aside>
@@ -192,9 +190,7 @@ export default function AccountSidebar({
         </div>
 
         <div className="mt-5">
-          <Link href="/api/auth/logout?returnTo=/login" className={signOutLinkClassName}>
-            Sign out
-          </Link>
+          <AccountSignOutLink className={signOutLinkClassName} />
         </div>
         </div>
       </div>
