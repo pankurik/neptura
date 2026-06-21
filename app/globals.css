@@ -236,6 +236,53 @@
     --account-subpage-hero-fade: 3.5rem;
   }
 
+  .account-sidebar-cosmic {
+    background-color: var(--neptura-neptune);
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--neptura-deep) 32%, var(--neptura-neptune) 68%) 0%,
+      var(--neptura-neptune) 42%,
+      color-mix(in srgb, var(--neptura-neptune) 88%, var(--neptura-deep) 12%) 100%
+    );
+  }
+
+  .account-sidebar-cosmic::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      transparent 50%,
+      color-mix(in srgb, var(--neptura-neptune) 35%, transparent) 100%
+    );
+  }
+
+  .account-sidebar-cosmic .account-subpage-hero-system--left {
+    top: 14%;
+    left: -35%;
+    width: 130px;
+    height: 130px;
+    opacity: 0.58;
+  }
+
+  .account-sidebar-cosmic .account-subpage-hero-system--right {
+    top: 48%;
+    left: 5%;
+    width: 165px;
+    height: 165px;
+    opacity: 0.72;
+  }
+
+  .account-sidebar-cosmic .account-subpage-hero-system--far {
+    top: 68%;
+    left: -45%;
+    width: 190px;
+    height: 170px;
+    opacity: 0.42;
+  }
+
   .account-subpage-hero-aurora-field {
     position: absolute;
     inset: 0;
